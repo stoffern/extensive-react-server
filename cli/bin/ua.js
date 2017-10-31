@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
@@ -104,12 +106,15 @@ if (command === 'new') {
     process.exit(1);
   });
 } else {
-  console.log(`     __  __      _                            __`);
+  console.log(`   __  __      _                            __`);
   console.log(`  / / / /___  (_)   _____  ______________ _/ /`);
-  console.log(` / / / / __ \/ / | / / _ \/ ___/ ___/ __ `/ / `);
+  console.log(` / / / / __ \\/ / | / / _ \/ ___/ ___/ __ \`/ / `);
   console.log(`/ /_/ / / / / /| |/ /  __/ /  (__  ) /_/ / /  `);
-  console.log(`\\____/_/ /_/_/ |___/\___/_/  /____/\__,_/_/ `);
+  console.log(`\\____/_/ /_/_/ |___/\\___/_/  /____/\\__,_/_/ `);
+  console.log()
+  console.log(`                                  App CLI `);
   console.log();
+  console.log(' Usage: ua-cli <command> [options]  or..');
   console.log(' Usage: ua <command> [options]');
   console.log();
   console.log(' Commands:');
