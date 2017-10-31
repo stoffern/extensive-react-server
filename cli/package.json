@@ -1,0 +1,39 @@
+{
+  "name": "universal-app-cli",
+  "version": "0.1.0",
+  "description": "React Loader template and server that runs with (Koa, React, Relay Modern, GraphQL, Found router)",
+  "bin": {
+    "ua-cli": "./bin/ua.js",
+    "ua": "./bin/ua.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stoffern/universal-app-cli.git"
+  },
+  "author": "stoffern",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/stoffern/universal-app-cli/issues"
+  },
+  "homepage": "https://github.com/stoffern/universal-app-cli#readme",
+  "dependencies": {
+    "commander": "^2.11.0",
+    "fs-extra": "^4.0.2",
+    "path": "^0.12.7",
+    "shelljs": "^0.7.8",
+    "yarn-or-npm": "^2.0.4"
+  },
+  "devDependencies": {
+    "cz-conventional-changelog": "^2.1.0",
+    "semantic-release": "^8.2.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}
