@@ -10,7 +10,7 @@ import dotenv from 'dotenv'
 
 import { ServerFetcher } from './fetcher'
 import { createResolver, historyMiddlewares, render } from './Router'
-import Routes, { paths } from '../../../app/Routes'
+import Routes, { paths } from '../../../../app/Routes'
 
 dotenv.config()
 

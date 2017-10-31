@@ -14,8 +14,8 @@ export default class Server {
     this.isRunning = false;
     this.routesPath = path.resolve(process.cwd(), 'routes')
 
-    this.webpackClientCfg = require('../../../webpack/client.dev')
-    this.webpackServerCfg = require('../../../webpack/server.dev')
+    this.webpackClientCfg = require('../../../../webpack/client.dev')
+    this.webpackServerCfg = require('../../../../webpack/server.dev')
 
   }
 
@@ -60,7 +60,7 @@ export default class Server {
 
         webpack([this.webpackClientCfg, this.webpackServerCfg]).run((err, stats) => {
           const clientStats = stats.toJson().children[0]
-          const serverRender = require('../../../build/ssr/main.js').default
+          const serverRender = require('../../../../build/ssr/main.js').default
 
           this.app.use(koaStatic({rootDir: outputPath, rootPath: publicPath}))
           this.app.use(serverRender({ clientStats }))

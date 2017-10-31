@@ -1,3 +1,4 @@
+
 import React from 'react'
 import ReactDOM from 'react-dom'
 import AppContainer from 'react-hot-loader/lib/AppContainer'
@@ -15,7 +16,7 @@ export default class Rload {
       level: this.config.logLevel,
       transports: [
         new (winston.transports.Console)(),
-        new (winston.transports.File)({ filename: 'rload-core.log' })
+        new (winston.transports.File)({ filename: 'ua.log' })
       ]
     });
   }
@@ -28,11 +29,4 @@ export default class Rload {
     this.server.start()
   }
 }
-
-let server = new Rload();
-
-server.start({
-  environment: 'production',
-  logLevel: 4
-});
 
