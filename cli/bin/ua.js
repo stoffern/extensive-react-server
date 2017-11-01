@@ -1,24 +1,30 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const fsExtra = require('fs-extra');
 const path = require('path');
 const readline = require('readline');
 const { spawn } = require('child_process');
 const { hasYarn } = require('yarn-or-npm');
 const command = process.argv[2];
 
+
+const libFolder = (process.env.UA_SDK == true)?
+                  path.resolve(process.cwd(), './node_modules/universal-app/lib/run'):
+                  path.resolve(process.cwd(), './universal-app/lib/run')
+
 if (process.argv.includes('--verbose')) {
   process.env.VERBOSE = true;
 }
 
 
-
-function checkIfCurrentWorkingDirectoryIsEmpty() {
+function checkIfCurrentWorkingDirectoryIsEmpty(appName) {
   return new Promise(resolve => {
     console.log(`Scaffolding a new JavaScript application in ${process.cwd()}`);
 
     // Check if the current directory is empty
-    const files = fs.readdirSync(process.cwd());
+    fsExtra.ensureDirSync(path.resolve(process.cwd(), appName))
+    const files = fs.readdirSync(path.resolve(process.cwd(), appName));
     if (files.filter(x => x !== '.git').length) {
       console.log('The current directory is not empty.');
       const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
@@ -38,12 +44,13 @@ function checkIfCurrentWorkingDirectoryIsEmpty() {
   });
 }
 
-function installCore() {
-  const filename = path.resolve(process.cwd(), 'package.json');
+function installCore(appName) {
+  var packageJson = path.resolve(process.cwd(), appName, 'package.json')
   try {
-    fs.accessSync(filename, fs.F_OK);
+    fsExtra.ensureFileSync(packageJson);
+    fsExtra.writeJson(packageJson, {name: appName})
   } catch (e) {
-    fs.writeFileSync(filename, '{}', 'utf8');
+    console.log('Error creating package.json file')
   }
 
   return new Promise((resolve, reject) => {
@@ -51,7 +58,7 @@ function installCore() {
     console.log(`Installing '${module}' from npm... This may take a couple minutes.`);
 
     const ifWindows = /^win/.test(process.platform) ? '.cmd' : '';
-    const options = { stdio: ['ignore', 'inherit', 'inherit'] };
+    const options = { stdio: ['ignore', 'inherit', 'inherit'], cwd: path.resolve(process.cwd(), appName) };
     if (hasYarn()){
       spawn('yarn'+ifWindows, ['add', 'universal-app', '--save-dev'], options).on('close', code => {
         if (code === 0) {
@@ -74,20 +81,20 @@ function installCore() {
 }
 
 function run(command) {
-  return require(
-    path.resolve(process.cwd(), './node_modules/universal-app/lib/run')
-  )(command);
+  return require(libFolder)(command);
 }
 
-
-
 if (command === 'new') {
+  var appName = process.argv[3]
+  if (appName == undefined) appName =''
   Promise.resolve()
-    .then(() => checkIfCurrentWorkingDirectoryIsEmpty())
-    .then(() => installCore())
+    .then(() => checkIfCurrentWorkingDirectoryIsEmpty(appName))
+    .then(() => installCore(appName))
     .then(() => (
-      require(path.resolve(process.cwd(), '../node_modules/universal-app/lib/run/new'))
-    ))
+      process.env.TEST_SDK === 'true'? 
+      require(path.resolve(__dirname, '../../lib/run/new'))():
+      require(path.resolve(process.cwd(), './node_modules/universal-app/lib/run/new'))())
+    )
     .catch(err => {
       console.error(process.argv.includes('--verbose') ? err.stack : `ERROR: ${err.message}`);
       process.exit(1);
@@ -100,7 +107,7 @@ if (command === 'new') {
     `HMR: ${process.env.HMR === 'true' ? 'true' : 'false'}`
   );
 
-  run(command === 'start' ? 'run' : command)
+  run(command)
   .catch(err => {
     console.error(process.argv.includes('--verbose') ? err.stack : `ERROR: ${err.message}`);
     process.exit(1);
@@ -122,6 +129,7 @@ if (command === 'new') {
   console.log('   new      - Scaffold a new JavaScript application project');
   console.log('   build    - Compile JavaScript application with Webpack');
   console.log('   run      - Run the app');
+  console.log('   add      - Add module(s) to the app');
   console.log();
   console.log(' Options:');
   console.log();
