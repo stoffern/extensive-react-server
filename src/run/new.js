@@ -62,4 +62,4 @@ function copyTemplate(){
   console.log('Copy template files..');
   return fs.copySync(path.resolve(uAppdir, '..', 'templates', 'default'), path.resolve(clientDir))
 }
-module.exports = () => init()
+module.exports = init()

@@ -12,9 +12,10 @@ $ ua run
 
 
 ### Todo:
+- [x] Move installation as a dependency installation
 - [ ] Add Graphql module
-- [x] Add passport module
--[] Add Relay module
+- [ ] Add passport module
+- [ ] Add Relay module
 
 
 ### Adding GraphQL
