@@ -1,5 +1,6 @@
 import fs from 'fs-extra'
 import path from 'path'
+import _ from 'lodash'
 const { spawn } = require('child_process');
 const { hasYarn } = require('yarn-or-npm');
 
@@ -12,29 +13,7 @@ var selectedTemplate = 'default';
 const ifWindows = /^win/.test(process.platform) ? '.cmd' : '';
 const options = { stdio: ['ignore', 'inherit', 'inherit'] };
 
-async function init () {
-  console.log('start')
-  try{
-   copyWepackFiles();
-   copyTemplate();
-  }catch(e){
 
-  }
-  await updateJsonFile(projectName);
-  console.log('Install remaining node modules..');
-
-  var cmd = 'npm'
-  if (hasYarn()){
-    cmd = 'yarn'
-  }
-  spawn(cmd+ifWindows, ['install'], options).on('close', code => {
-    if (code === 0) {
-      console.log('installed')
-    } else {
-      new Error(`Failed to install '${module}'.`);
-    }
-  });
-}
 
 async function updateJsonFile(projectName){
   try{
@@ -48,6 +27,7 @@ async function updateJsonFile(projectName){
       path.resolve(clientDir, 'package.json'), 
       JSON.stringify(jsonData, null, 2)
     )
+    return jsonData
   }catch(e){
 
   }
@@ -62,4 +42,32 @@ function copyTemplate(){
   console.log('Copy template files..');
   return fs.copySync(path.resolve(uAppdir, '..', 'templates', 'default'), path.resolve(clientDir))
 }
-module.exports = init()
+module.exports = async function init () {
+  try{
+    let json = await updateJsonFile(projectName)
+    await copyWepackFiles();
+    await copyTemplate();
+    var jsonTemplate = await fs.readJson(path.resolve(clientDir, 'package.json'))
+    let merge = await _.merge(jsonTemplate, json)
+
+    await fs.outputJSON(
+      path.resolve(clientDir, 'package.json'), 
+      merge
+    )
+    console.log('Install remaining node modules..');
+
+    var cmd = 'npm'
+    if (hasYarn()){
+      cmd = 'yarn'
+    }
+    spawn(cmd+ifWindows, ['install'], options).on('close', code => {
+      if (code === 0) {
+        console.log('installed')
+      } else {
+        new Error(`Failed to install '${module}'.`);
+      }
+    });
+  }catch(e){
+
+  }
+}
