@@ -1,4 +1,5 @@
 module.exports ={
-  HOSTNAME: 'localhost',
-  APP_PORT: 3000,
+  HOSTNAME: 'localhost', // Host to listen on
+  APP_PORT: 3000, // Port for webapp
+  ENV: 'development', // Note: NODE_ENV variable will override this
 }

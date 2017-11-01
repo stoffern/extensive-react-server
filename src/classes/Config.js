@@ -11,7 +11,14 @@ export default class Config {
 
     let config = this.parseConfigFolder();
     Object.assign(this, config);
+
+    if (let env = getEnvironmentVariable() !== ''){
+      this.environment = env
+    }else{
+      this.environment = this.core.NODE_ENV
+    }
   }
+
   parseConfigFolder() {
     let config = {};
     fs.readdirSync(this.configPath).forEach(file => {
@@ -20,5 +27,13 @@ export default class Config {
       config[name] = require(path.join(this.configPath, name));
     });
     return config;
+  }
+
+  getEnvironmentVariable(){
+    const nodeEnv = (process.env.NODE_ENV || '').toLowerCase();
+
+    if (nodeEnv === 'prod' || nodeEnv === 'production') return 'production';
+    else if (nodeEnv === 'dev' || nodeEnv === 'development') return 'development';
+    else return '';
   }
 }

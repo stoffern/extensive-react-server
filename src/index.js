@@ -18,16 +18,7 @@ class UniversalApp {
     });
   }
 
-  start(props) {
-    Object.assign(this.config, {
-      environment: 'development',
-      logLevel: 3,
-      pathCwd : '../../'
-    })
-
-    if (props)
-      Object.assign(this.config, props)
-
+  start() {
     this.server.start()
   }
 }
