@@ -11,7 +11,6 @@ var uAppdir = path.resolve(__dirname, '..');
 var selectedTemplate = 'default';
 
 const ifWindows = /^win/.test(process.platform) ? '.cmd' : '';
-const options = ;
 
 
 
