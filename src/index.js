@@ -5,7 +5,7 @@ import winston from 'winston'
 import Config from './classes/Config';
 import Server from './classes/Server';
 
-export default class UniversalApp {
+class UniversalApp {
   constructor(props) {
     this.config = new Config({}, this);
     this.server = new Server({}, this);
@@ -19,11 +19,16 @@ export default class UniversalApp {
   }
 
   start(props) {
-    this.config.environment = props.environment || 'development'
-    this.config.logLevel = props.logLevel || 3
-    this.config.pathCwd = props.pathCwd || '../../'
+    Object.assign(this.config, {
+      environment: 'development',
+      logLevel: 3,
+      pathCwd : '../../'
+    })
+
+    if (props)
+      Object.assign(this.config, props)
 
     this.server.start()
   }
 }
-
+export default new UniversalApp()

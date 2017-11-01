@@ -1,6 +1,9 @@
 import fs from 'fs';
 import path from 'path';
 
+//
+//Handle config files
+//
 export default class Config {
   constructor(props, parent) {
     this.parent = parent;

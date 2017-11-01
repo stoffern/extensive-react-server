@@ -10,7 +10,7 @@ module.exports = {
   entry: [
     'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=false&quiet=false&noInfo=false',
     'react-hot-loader/patch',
-    path.resolve(__dirname, '../node_modules/universal-app/src/utils/client-render'),
+    path.resolve(__dirname, '../node_modules/universal-app/lib/utils/client-render'),
   ],
   output: {
     filename: '[name].js',

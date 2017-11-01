@@ -6,7 +6,7 @@ module.exports = {
   name: 'client',
   target: 'web',
   devtool: 'source-map',
-  entry: path.resolve(__dirname, '../node_modules/universal-app/src/utils/client-render'),
+  entry: path.resolve(__dirname, '../node_modules/universal-app/lib/utils/client-render'),
   output: {
     filename: '[name].[chunkhash].js',
     chunkFilename: '[name].[chunkhash].js',

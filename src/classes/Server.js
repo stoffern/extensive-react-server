@@ -6,6 +6,9 @@ import webpack from 'webpack'
 import path from 'path'
 
 
+//
+//Handle main Koa2 and webpack for app.
+//
 export default class Server {
   constructor(props, parent) {
     this.parent = parent;
@@ -14,8 +17,8 @@ export default class Server {
     this.isRunning = false;
     this.routesPath = path.resolve(process.cwd(), 'routes')
 
-    this.webpackClientCfg = require('../../../../webpack/client.dev')
-    this.webpackServerCfg = require('../../../../webpack/server.dev')
+    this.webpackClientCfg = require(path.resolve(process.cwd(),'webpack/client.dev'))
+    this.webpackServerCfg = require(path.resolve(process.cwd(),'webpack/server.dev'))
 
   }
 
@@ -75,6 +78,7 @@ export default class Server {
   }
 
   startListen(){
+    this.parent.logger.info()
     this.parent.logger.verbose('Starting server on http://%s:%s <===', 
       this.parent.config.core.HOSTNAME, 
       this.parent.config.core.APP_PORT
@@ -87,10 +91,12 @@ export default class Server {
         that.app.listen(
           that.parent.config.core.APP_PORT,
           () => {
+            that.parent.logger.info()
             that.parent.logger.info(
               '==> Server is up at http://%s:%s <===', 
               that.parent.config.core.HOSTNAME, 
               that.parent.config.core.APP_PORT)
+            that.parent.logger.info()
           }
         )
       }

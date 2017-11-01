@@ -6,7 +6,7 @@ module.exports = {
   name: 'server',
   target: 'node',
   devtool: 'source-map',
-  entry: path.resolve(__dirname, '../node_modules/universal-app/src/utils/server-render'),
+  entry: path.resolve(__dirname, '../node_modules/universal-app/lib/utils/server-render'),
   output: {
     path: path.resolve(__dirname, '../build/ssr'),
     filename: '[name].js',
