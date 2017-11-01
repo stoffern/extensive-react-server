@@ -2,7 +2,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import AppContainer from 'react-hot-loader/lib/AppContainer'
-import { createClientRouter, createClientResolver } from './utils/Router'
 import winston from 'winston'
 
 import Config from './classes/Config';

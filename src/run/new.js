@@ -11,7 +11,7 @@ var uAppdir = path.resolve(__dirname, '..');
 var selectedTemplate = 'default';
 
 const ifWindows = /^win/.test(process.platform) ? '.cmd' : '';
-const options = { stdio: ['ignore', 'inherit', 'inherit'] };
+const options = ;
 
 
 
@@ -62,7 +62,10 @@ module.exports = async function init (clientFolder) {
     if (hasYarn()){
       cmd = 'yarn'
     }
-    spawn(cmd+ifWindows, ['install'], options).on('close', code => {
+    spawn(cmd+ifWindows, ['install'], { 
+      stdio: ['ignore', 'inherit', 'inherit'],
+      cwd: clientFolder,
+    }).on('close', code => {
       if (code === 0) {
         console.log('installed')
       } else {

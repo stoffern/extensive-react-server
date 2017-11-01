@@ -8,9 +8,9 @@ const { spawn } = require('child_process');
 const { hasYarn } = require('yarn-or-npm');
 const command = process.argv[2];
 
-const libFolder = path.resolve(process.cwd(), './node_modules/universal-app/lib/run')
 const appName = process.argv[3] || ''
 const appFolder = path.resolve(process.cwd(), appName)
+const libFolder = path.resolve(appFolder, './node_modules/universal-app/lib/run')
 
 function checkIfCurrentWorkingDirectoryIsEmpty(appName) {
   return new Promise(resolve => {
@@ -88,7 +88,7 @@ async function run (){
     try{
       await checkIfCurrentWorkingDirectoryIsEmpty(appName)
       await installCore(appName)
-      await require(path.resolve(process.cwd(),'./node_modules/universal-app/lib/run/new.js'))(appFolder)
+      await require(path.resolve(libFolder,command+'.js'))(appFolder)
     }catch (e){
       console.error(process.argv.includes('--verbose') ? e.stack : `ERROR: ${e.message}`);
       process.exit(1);
