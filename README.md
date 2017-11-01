@@ -1,4 +1,6 @@
 # universal-app
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/stoffern/universal-app.svg)](https://greenkeeper.io/)
 [![Travis](https://img.shields.io/travis/stoffern/universal-app.svg)](https://travis-ci.org/stoffern/universal-app)
 
 Universal app - used with universal-app-cli
