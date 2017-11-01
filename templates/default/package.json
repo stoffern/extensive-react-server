@@ -11,7 +11,7 @@
     "start:prod:app": "set NODE_ENV=production babel-node node_modules/universal-app/src"
   },
   "repository": {
-    "type": "git",
+    "type": "git"
   },
   "bugs": {
   },

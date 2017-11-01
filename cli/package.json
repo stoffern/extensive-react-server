@@ -1,6 +1,6 @@
 {
   "name": "universal-app-cli",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "React Loader template and server that runs with (Koa, React, Relay Modern, GraphQL, Found router)",
   "bin": {
     "ua-cli": "./bin/ua.js",

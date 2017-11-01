@@ -8,7 +8,7 @@ import winston from 'winston'
 import Config from './classes/Config';
 import Server from './classes/Server';
 
-export default class Rload {
+export default class UniversalApp {
   constructor(props) {
     this.config = new Config({}, this);
     this.server = new Server({}, this);

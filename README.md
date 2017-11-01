@@ -12,7 +12,9 @@ $ ua run
 
 
 ### Todo:
-[] Add passport
+- [ ] Add Graphql module
+- [x] Add passport module
+-[] Add Relay module
 
 
 ### Adding GraphQL

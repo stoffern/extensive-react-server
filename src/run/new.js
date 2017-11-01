@@ -5,16 +5,15 @@ const { hasYarn } = require('yarn-or-npm');
 
 var clientDir = path.resolve(process.cwd());
 var projectName = path.basename(clientDir);
-var reuseDir = path.resolve(__dirname, '..');
+var uAppdir = path.resolve(__dirname, '..');
 
 var selectedTemplate = 'default';
 
 const ifWindows = /^win/.test(process.platform) ? '.cmd' : '';
 const options = { stdio: ['ignore', 'inherit', 'inherit'] };
 
-init();
-
-async function init(){
+async function init () {
+  console.log('start')
   try{
    copyWepackFiles();
    copyTemplate();
@@ -56,10 +55,11 @@ async function updateJsonFile(projectName){
 
 function copyWepackFiles(){
   console.log('Copy webpack files..');
-  return fs.copy(path.resolve(reuseDir, '..', 'templates', 'webpack'), path.resolve(clientDir, 'webpack'))
+  return fs.copySync(path.resolve(uAppdir, '..', 'templates', 'webpack'), path.resolve(clientDir, 'webpack'))
 }
 
 function copyTemplate(){
   console.log('Copy template files..');
-  return fs.copy(path.resolve(reuseDir, '..', 'templates', 'default'), path.resolve(clientDir))
+  return fs.copySync(path.resolve(uAppdir, '..', 'templates', 'default'), path.resolve(clientDir))
 }
+module.exports = () => init()

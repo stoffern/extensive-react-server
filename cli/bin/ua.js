@@ -8,10 +8,7 @@ const { spawn } = require('child_process');
 const { hasYarn } = require('yarn-or-npm');
 const command = process.argv[2];
 
-
-const libFolder = (process.env.UA_SDK == true)?
-                  path.resolve(process.cwd(), './node_modules/universal-app/lib/run'):
-                  path.resolve(process.cwd(), './universal-app/lib/run')
+const libFolder = path.resolve(process.cwd(), './node_modules/universal-app/lib/run')
 
 if (process.argv.includes('--verbose')) {
   process.env.VERBOSE = true;
@@ -81,7 +78,7 @@ function installCore(appName) {
 }
 
 function run(command) {
-  return require(libFolder)(command);
+  return require(path.resolve(libFolder,command+'.js'));
 }
 
 if (command === 'new') {
@@ -91,10 +88,8 @@ if (command === 'new') {
     .then(() => checkIfCurrentWorkingDirectoryIsEmpty(appName))
     .then(() => installCore(appName))
     .then(() => (
-      process.env.TEST_SDK === 'true'? 
-      require(path.resolve(__dirname, '../../lib/run/new'))():
-      require(path.resolve(process.cwd(), './node_modules/universal-app/lib/run/new'))())
-    )
+      require(path.resolve(process.cwd(),'./node_modules/universal-app/lib/run/new.js'))
+    ))
     .catch(err => {
       console.error(process.argv.includes('--verbose') ? err.stack : `ERROR: ${err.message}`);
       process.exit(1);
