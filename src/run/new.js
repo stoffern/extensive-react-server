@@ -15,16 +15,16 @@ const options = { stdio: ['ignore', 'inherit', 'inherit'] };
 
 
 
-async function updateJsonFile(projectName){
+async function updateJsonFile(projectName, clientFolder){
   try{
-    await fs.ensureFile(path.resolve(clientDir, 'package.json'))
-    var jsonData = await fs.readJson(path.resolve(clientDir, 'package.json'))
+    await fs.ensureFile(path.resolve(clientFolder, 'package.json'))
+    var jsonData = await fs.readJson(path.resolve(clientFolder, 'package.json'))
 
     jsonData.name = projectName;
     jsonData.version = '0.0.1';
 
     await fs.outputFileSync(
-      path.resolve(clientDir, 'package.json'), 
+      path.resolve(clientFolder, 'package.json'), 
       JSON.stringify(jsonData, null, 2)
     )
     return jsonData
@@ -33,25 +33,27 @@ async function updateJsonFile(projectName){
   }
 }
 
-function copyWepackFiles(){
+function copyWepackFiles(clientFolder){
   console.log('Copy webpack files..');
-  return fs.copySync(path.resolve(uAppdir, '..', 'templates', 'webpack'), path.resolve(clientDir, 'webpack'))
+  return fs.copySync(path.resolve(uAppdir, '..', 'templates', 'webpack'), path.resolve(clientFolder, 'webpack'))
 }
 
-function copyTemplate(){
+function copyTemplate(clientFolder){
   console.log('Copy template files..');
-  return fs.copySync(path.resolve(uAppdir, '..', 'templates', 'default'), path.resolve(clientDir))
+  return fs.copySync(path.resolve(uAppdir, '..', 'templates', 'default'), path.resolve(clientFolder))
 }
-module.exports = async function init () {
+
+
+module.exports = async function init (clientFolder) {
   try{
-    let json = await updateJsonFile(projectName)
-    await copyWepackFiles();
-    await copyTemplate();
-    var jsonTemplate = await fs.readJson(path.resolve(clientDir, 'package.json'))
+    let json = await updateJsonFile(projectName, clientFolder)
+    await copyWepackFiles(clientFolder);
+    await copyTemplate(clientFolder);
+    var jsonTemplate = await fs.readJson(path.resolve(clientFolder, 'package.json'))
     let merge = await _.merge(jsonTemplate, json)
 
     await fs.outputJSON(
-      path.resolve(clientDir, 'package.json'), 
+      path.resolve(clientFolder, 'package.json'), 
       merge
     )
     console.log('Install remaining node modules..');

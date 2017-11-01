@@ -10,6 +10,7 @@ const command = process.argv[2];
 
 const libFolder = path.resolve(process.cwd(), './node_modules/universal-app/lib/run')
 const appName = process.argv[3] || ''
+const appFolder = path.resolve(process.cwd(), appName)
 
 function checkIfCurrentWorkingDirectoryIsEmpty(appName) {
   return new Promise(resolve => {
@@ -87,7 +88,7 @@ async function run (){
     try{
       await checkIfCurrentWorkingDirectoryIsEmpty(appName)
       await installCore(appName)
-      await require(path.resolve(process.cwd(),'./node_modules/universal-app/lib/run/new.js'))()
+      await require(path.resolve(process.cwd(),'./node_modules/universal-app/lib/run/new.js'))(appFolder)
     }catch (e){
       console.error(process.argv.includes('--verbose') ? e.stack : `ERROR: ${e.message}`);
       process.exit(1);
