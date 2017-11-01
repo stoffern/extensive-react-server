@@ -84,18 +84,14 @@ function executeCommand(command) {
 
 async function run (){ 
   if (command === 'new') {
-
     try{
       await checkIfCurrentWorkingDirectoryIsEmpty(appName)
       await installCore(appName)
       await require(path.resolve(process.cwd(),'./node_modules/universal-app/lib/run/new.js'))()
-      await installModule('universal-app')
     }catch (e){
       console.error(process.argv.includes('--verbose') ? e.stack : `ERROR: ${e.message}`);
       process.exit(1);
-
     }
-
   } else if (/^[a-z0-9:\-.]+$/.test(command || '')) {
     // console.log(
     //   `Environment: ${process.env.APP_ENV}, ` +
