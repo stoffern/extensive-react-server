@@ -12,7 +12,7 @@ export default class Config {
     let config = this.parseConfigFolder();
     Object.assign(this, config);
     
-    let env = getEnvironmentVariable()
+    let env = this.getEnvironmentVariable()
     if ( env !== '' )
       this.environment = env
     else
