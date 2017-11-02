@@ -11,12 +11,12 @@ export default class Config {
 
     let config = this.parseConfigFolder();
     Object.assign(this, config);
-
-    if (let env = getEnvironmentVariable() !== ''){
+    
+    let env = getEnvironmentVariable()
+    if ( env !== '' )
       this.environment = env
-    }else{
+    else
       this.environment = this.core.NODE_ENV
-    }
   }
 
   parseConfigFolder() {

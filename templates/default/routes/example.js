@@ -1,7 +1,6 @@
 //
 //Example custom route
 //
-//
 module.exports = router => {
   router.get(
     '/hello',

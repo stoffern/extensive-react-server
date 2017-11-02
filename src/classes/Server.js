@@ -2,6 +2,12 @@ import Koa from  'koa'
 import koaConvert from 'koa-convert'
 import koaStatic from  'koa-static-server'
 import helmet from  'koa-helmet'
+import conditional from  'koa-conditional-get'
+import logger from  'koa-logger'
+import cors from  'kcors'
+import compress from  'koa-compress'
+import json from  'koa-json'
+import etags from  'koa-etag'
 import webpack from 'webpack'
 import path from 'path'
 
@@ -24,11 +30,10 @@ export default class Server {
 
   async start(){
     try{
-      this.app.use(helmet())
-      // app.use(compression())
-      // app.use(cookieParser())
+      this.addKoaMiddleware()
 
       if (this.parent.config.environment == 'development') {
+        this.app.use(logger())
         this.parent.logger.verbose('Running in development mode..')
 
         const webpackDevMiddleware = require('webpack-dev-middleware')
@@ -74,6 +79,25 @@ export default class Server {
 
     }catch(e){
       this.parent.logger.error(e)
+    }
+  }
+  
+  addKoaMiddleware(){
+    if (this.parent.config.app && this.parent.config.app.useHelmet)
+      this.app.use(helmet(this.parent.config.app.helmetOptions))
+
+    if (this.parent.config.app && this.parent.config.app.useJsonPretty)
+      this.app.use(json())
+    
+    if (this.parent.config.app && this.parent.config.app.useCompress)
+      this.app.use(compress(this.parent.config.app.compressOptions))
+
+    if (this.parent.config.app && this.parent.config.app.useCors)
+      this.app.use(cors(this.parent.config.app.corsOptions))
+
+    if (this.parent.config.app && this.parent.config.app.useEtags){
+      this.app.use(conditional())
+      this.app.use(etags())
     }
   }
 
