@@ -2,6 +2,8 @@
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/stoffern/universal-app.svg)](https://greenkeeper.io/)
 [![Travis](https://img.shields.io/travis/stoffern/universal-app.svg)](https://travis-ci.org/stoffern/universal-app)
+[![npm](https://img.shields.io/npm/dt/universal-app.svg)](https://www.npmjs.com/package/universal-app)
+[![npm](https://img.shields.io/npm/v/universal-app.svg)](https://www.npmjs.com/package/universal-app)
 
 Extensible server for hosting a React universal app(Isomorpic) with support for [Graphql](https://github.com/facebook/graphql), [Relay](https://github.com/facebook/relay), [Passport](https://github.com/jaredhanson/passport), and the option to customize own routes, and setup.
 
