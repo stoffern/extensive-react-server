@@ -39,14 +39,14 @@ async function installCore(appName) {
   try {
     await fsExtra.ensureFile(packageJson);
     await fsExtra.writeJson(packageJson, {name: appName})
-    await installModule('universal-app')
+    await installModule('universal-app', appName)
   } catch (e) {
     console.log('Error creating package.json file')
     console.log(e)
   }
 }
 
-function installModule(module){
+function installModule(module, appName){
   return new Promise((resolve, reject) => {
     const ifWindows = /^win/.test(process.platform) ? '.cmd' : '';
     const options = { stdio: ['ignore', 'inherit', 'inherit'], cwd: path.resolve(process.cwd(), appName) };
