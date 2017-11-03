@@ -8,10 +8,6 @@ const { spawn } = require('child_process');
 const { hasYarn } = require('yarn-or-npm');
 const command = process.argv[2];
 
-const appName = process.argv[3] || ''
-const appFolder = path.resolve(process.cwd(), appName)
-const libFolder = path.resolve(appFolder, './node_modules/universal-app/lib/run')
-
 function checkIfCurrentWorkingDirectoryIsEmpty(appName) {
   return new Promise(resolve => {
     console.log(`Scaffolding a new JavaScript application in ${process.cwd()}`);
@@ -80,12 +76,16 @@ function installModule(module){
 
 function executeCommand(command) {
   return Promise.resolve()
-    .then(() => require(path.resolve(libFolder,command+'.js'))())
+    .then(() => require(path.resolve(process.cwd(), './node_modules/universal-app/lib/run',command+'.js'))())
 }
 
 async function run (){ 
   if (command === 'new') {
     try{
+      const appName = process.argv[3] || ''
+      const appFolder = path.resolve(process.cwd(), appName)
+      const libFolder = path.resolve(appFolder, './node_modules/universal-app/lib/run')
+
       await checkIfCurrentWorkingDirectoryIsEmpty(appName)
       await installCore(appName)
       await require(path.resolve(libFolder,command+'.js'))(appFolder)
@@ -94,13 +94,6 @@ async function run (){
       process.exit(1);
     }
   } else if (/^[a-z0-9:\-.]+$/.test(command || '')) {
-    // console.log(
-    //   `Environment: ${process.env.APP_ENV}, ` +
-    //   `build: ${process.env.NODE_ENV === 'development'
-    //     ? 'development (non-optimized)' : 'release (optimized)'}, ` +
-    //   `HMR: ${process.env.HMR === 'true' ? 'true' : 'false'}`
-    // );
-
     executeCommand(command)
     .catch(err => {
       console.error(process.argv.includes('--verbose') ? err.stack : `ERROR: ${err.message}`);

@@ -1,16 +1,18 @@
 import Koa from  'koa'
+import Router from 'koa-better-router'
+import compress from  'koa-compress'
+import conditional from  'koa-conditional-get'
+import cors from  'kcors'
+import etags from  'koa-etag'
+import fs from 'fs'
+import fsExtra from 'fs-extra'
+import helmet from  'koa-helmet'
+import json from  'koa-json'
 import koaConvert from 'koa-convert'
 import koaStatic from  'koa-static-server'
-import helmet from  'koa-helmet'
-import conditional from  'koa-conditional-get'
 import logger from  'koa-logger'
-import cors from  'kcors'
-import compress from  'koa-compress'
-import json from  'koa-json'
-import etags from  'koa-etag'
-import webpack from 'webpack'
 import path from 'path'
-
+import webpack from 'webpack'
 
 //
 //Handle main Koa2 and webpack for app.
@@ -19,6 +21,8 @@ export default class Server {
   constructor(props, parent) {
     this.parent = parent;
     this.app = new Koa();
+    this.router = new Router();
+    this.router.loadMethods();
 
     this.isRunning = false;
     this.routesPath = path.resolve(process.cwd(), 'routes')
@@ -32,14 +36,16 @@ export default class Server {
     try{
       this.addKoaMiddleware()
 
+      await this.handleRoutes()
+
       if (this.parent.config.environment == 'development') {
         this.app.use(logger())
-        this.parent.logger.verbose('Running in development mode..')
+        this.parent.logger.info('Running in development mode..')
 
         const webpackDevMiddleware = require('webpack-dev-middleware')
         const webpackHotMiddleware = require('koa-webpack-hot-middleware')
         const webpackHotServerMiddleware = require('webpack-hot-server-middleware')
-        this.parent.logger.verbose('Webpack files loaded!')
+        this.parent.logger.info('Webpack files loaded!')
 
         const publicPath = this.webpackClientCfg.output.publicPath
         const compiler = webpack([this.webpackClientCfg, this.webpackServerCfg])
@@ -53,7 +59,6 @@ export default class Server {
           } 
         })))
         this.app.use(koaConvert(webpackHotMiddleware(clientCompiler)))
-
         this.app.use(webpackHotServerMiddleware(compiler, {
           createHandler: webpackHotServerMiddleware.createKoaHandler,
         }))
@@ -62,7 +67,7 @@ export default class Server {
 
       } else {
         
-        this.parent.logger.verbose('Running in production mode..')
+        this.parent.logger.info('Running in production mode..')
         const publicPath = this.webpackClientCfg.output.publicPath
         const outputPath = this.webpackClientCfg.output.path
 
@@ -78,7 +83,7 @@ export default class Server {
       }
 
     }catch(e){
-      this.parent.logger.error(e)
+      this.parent.logger.error('Server start(): '+ e)
     }
   }
   
@@ -101,13 +106,57 @@ export default class Server {
     }
   }
 
+  async handleRoutes(){
+    //add "routes/"
+    await this.addRoutesFolderOrFile(path.resolve(process.cwd(),'routes'))
+
+    //parse "additional routes from config"
+    if (this.parent.config.routes && this.parent.config.routes.routePaths){
+      let {routePaths} = this.parent.config.routes
+      if (!routePaths instanceof Array){
+        this.parent.logger.warn('config.routes.routePaths is not a array!')
+      }else{
+        await routePaths.forEach(path => 
+          this.addRoutesFolderOrFile(path)
+        );
+      }
+    }
+    //add router
+    this.app.use(this.router.middleware())
+  }
+
+  async addRoutesFolderOrFile(p){
+    try{
+      let isFile = fs.lstatSync(p).isFile()
+      let isDirectory = fs.lstatSync(p).isDirectory()
+      if( !isFile && !isDirectory ){
+        this.parent.logger.warn('Routes path:'+ p +' - does not exist')
+        return
+      }else{
+        if (isFile){
+          this.addRouteFile(p)
+        }else{
+          let files = await fs.readdirSync(p)
+          files.forEach(file => this.addRouteFile(path.resolve(p, file)) );
+        }
+      }
+    }catch(e){
+      this.parent.logger.error('Server addRoutesFolderOrFile(): '+ e)
+    }
+  }
+  addRouteFile(file){
+    let route = require(file);
+    route(this.router, this.parent.config);
+    this.parent.logger.info('Route added: '+ file)
+  }
+
   startListen(){
-    this.parent.logger.info()
-    this.parent.logger.verbose('Starting server on http://%s:%s <===', 
-      this.parent.config.core.HOSTNAME, 
-      this.parent.config.core.APP_PORT
-    )
     var that = this
+    that.parent.logger.info()
+    that.parent.logger.verbose('Starting server on http://%s:%s <===', 
+      that.parent.config.core.HOSTNAME, 
+      that.parent.config.core.APP_PORT
+    )
     return () => {
       //Only start once
       if (!that.isRunning){

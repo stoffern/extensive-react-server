@@ -58,6 +58,7 @@ async function renderAsync(req) {
     relayPayload,
     styleTags,
     redirect,
+    status,
   }
 }
 
@@ -71,12 +72,7 @@ export default ({ clientStats }) => async (ctx, next) => {
   try {
     const renderResult = await renderAsync(ctx)
 
-    const redirectUrl = renderResult.redirect && renderResult.redirect.url
-    if (redirectUrl) {
-      ctx.status = 302
-      ctx.redirect(redirectUrl)
-      return
-    }
+    if (renderResult.status !== 200) return next()
 
     const helmet = renderResult.helmet
     title = helmet && helmet.title && helmet.title.toString()
@@ -85,13 +81,7 @@ export default ({ clientStats }) => async (ctx, next) => {
     relayPayload = renderResult.relayPayload
     app = renderResult.app
   } catch (err) {
-    const isRedirect = err instanceof RedirectException
-    if (isRedirect) {
-      ctx.status = 302
-      ctx.redirect(err.location)
-      return
-    }
-
+    return next()
   }
 
   const chunkNames = flushChunkNames()

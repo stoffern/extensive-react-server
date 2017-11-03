@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import winston from 'winston';
 
 //
 //Handle config files
@@ -17,6 +18,7 @@ export default class Config {
       this.environment = env
     else
       this.environment = this.core.NODE_ENV
+    // this.parent.logger.info('Environment set: '+this.environment)
   }
 
   parseConfigFolder() {

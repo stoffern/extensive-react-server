@@ -8,7 +8,6 @@ import Server from './classes/Server';
 class UniversalApp {
   constructor(props) {
     this.config = new Config({}, this);
-    this.server = new Server({}, this);
     this.logger = new winston.Logger({
       level: this.config.logLevel,
       transports: [
@@ -16,6 +15,8 @@ class UniversalApp {
         new (winston.transports.File)({ filename: 'ua.log' })
       ]
     });
+    this.server = new Server({}, this);
+    
   }
 
   start() {
