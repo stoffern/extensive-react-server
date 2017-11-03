@@ -146,7 +146,7 @@ export default class Server {
   }
   addRouteFile(file){
     let route = require(file);
-    route(this.router, this.parent.config);
+    route(this.app, this.router, this.parent.config);
     this.parent.logger.info('Route added: '+ file)
   }
 
@@ -155,20 +155,20 @@ export default class Server {
     that.parent.logger.info()
     that.parent.logger.verbose('Starting server on http://%s:%s <===', 
       that.parent.config.core.HOSTNAME, 
-      that.parent.config.core.APP_PORT
+      that.parent.config.core.PORT
     )
     return () => {
       //Only start once
       if (!that.isRunning){
         that.isRunning = !that.isRunning
         that.app.listen(
-          that.parent.config.core.APP_PORT,
+          that.parent.config.core.PORT,
           () => {
             that.parent.logger.info()
             that.parent.logger.info(
               '==> Server is up at http://%s:%s <===', 
               that.parent.config.core.HOSTNAME, 
-              that.parent.config.core.APP_PORT)
+              that.parent.config.core.PORT)
             that.parent.logger.info()
           }
         )

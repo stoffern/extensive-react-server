@@ -1,7 +1,7 @@
 //
 //Example custom route
 //
-module.exports = router => {
+module.exports = (app, router, config) => {
   router.get(
     '/hello',
     (ctx, next) => {

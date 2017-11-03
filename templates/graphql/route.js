@@ -1,7 +1,7 @@
 var graphqlHTTP = require('koa-graphql');
 var convert = require('koa-convert');
 
-module.exports = async function(router,config) {
+module.exports = async (app, router, config) => {
   var graphql = 
     convert(
       graphqlHTTP((request, context, all) => {

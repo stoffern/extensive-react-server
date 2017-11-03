@@ -63,5 +63,5 @@ routes/passport/index.js
 ## Todo:
 - [x] Move installation as a dependency installation
 - [x] Add Graphql module
-- [ ] Add passport module
+- [x] Add passport module
 - [ ] Add Relay module

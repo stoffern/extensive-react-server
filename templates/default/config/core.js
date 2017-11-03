@@ -1,7 +1,7 @@
 module.exports ={
   HOSTNAME: 'localhost', // Host to listen on
-  APP_PORT: 3000, // Port for webapp
-  ENV: 'development', // Note: NODE_ENV variable will override this
+  PORT: 3000, // Port for webapp
+  NODE_ENV: 'development', // Note: NODE_ENV variable will override this
   
   useJsonPretty: true, // Disables pretty-printing
   useEtags: false, // ETag support for Koa responses using etag. (https://github.com/jshttp/etag)
