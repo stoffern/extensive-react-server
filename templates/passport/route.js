@@ -9,7 +9,7 @@ module.exports = (app, router, config) => {
   passport.serializeUser((user, done) => done(null, user));
   passport.deserializeUser((user, done) => done(null, user));
 
-  fs.readdirSync(path.join(__dirname, 'passport'))
+  fs.readdirSync(path.join(__dirname, 'passports'))
     .forEach( file => {
       if (file == 'index.js') return;
       var name = file.substr(0, file.indexOf('.'));
