@@ -88,7 +88,7 @@
     "styled-components": "^2.2.3",
     "webpack": "^3.8.1",
     "webpack-flush-chunks": "^1.1.23",
-    "webpack-hot-server-middleware": "0.2.0",
+    "webpack-hot-server-middleware": "0.3.0",
     "winston": "^2.4.0",
     "write-file-webpack-plugin": "^4.1.0",
     "yarn-or-npm": "^2.0.4"
