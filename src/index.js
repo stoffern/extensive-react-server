@@ -4,10 +4,11 @@ import winston from 'winston'
 
 import Config from './classes/Config';
 import Server from './classes/Server';
+import Webpack from './classes/Webpack';
 
-class UniversalApp {
+module.exports = class UniversalApp {
   constructor(props) {
-    this.config = new Config({}, this);
+    this.config = props;
     this.logger = new winston.Logger({
       level: this.config.logLevel,
       transports: [
@@ -16,11 +17,31 @@ class UniversalApp {
       ]
     });
     this.server = new Server({}, this);
-    
+    this.webpack = new Webpack({}, this);
+    this.logger.info('[Universal App] - Creating instance..')
   }
 
+  /**
+   * Starts the engine
+   */
   start() {
-    this.server.start()
+    this.server.start();
   }
+
+  /**
+   * Adds routes to the route config
+   * @param {array} routes [route, route2, routefolder, routefolder3]
+   */
+  addRoutes(routes){
+    this.server.addRoutes(route)
+  }
+
+  /**
+   * Adds a route file or folder to the route config
+   * @param {string} route path/to/route.js
+   */
+  addRoute(route){
+    this.server.addRoute(route)
+  }
+
 }
-export default new UniversalApp()

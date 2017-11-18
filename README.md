@@ -67,3 +67,8 @@ routes/passport/index.js
 - [x] Add Graphql module
 - [x] Add passport module
 - [ ] Add Relay module
+- [ ] 
+
+
+## Thanks to:
+- [jkettmann](https://github.com/jkettmann) for a good startupkit
