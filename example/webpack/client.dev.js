@@ -2,7 +2,6 @@ const path = require('path')
 const webpack = require('webpack')
 const WriteFilePlugin = require('write-file-webpack-plugin')
 const dotenv = require('dotenv').config()
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
   name: 'client',
@@ -11,12 +10,12 @@ module.exports = {
   entry: [
     'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=false&quiet=false&noInfo=false',
     'react-hot-loader/patch',
-    path.resolve(__dirname, '../node_modules/universal-app/lib/utils/client-render'),
+    path.resolve(process.cwd(), '../src/utils/client-render'),
   ],
   output: {
     filename: '[name].js',
     chunkFilename: '[name].js',
-    path: path.resolve(__dirname, '../build/client'),
+    path: path.resolve(process.cwd(), 'build/client'),
     publicPath: '/static/',
   },
   module: {
@@ -26,20 +25,6 @@ module.exports = {
         exclude: /node_modules/,
         use: 'babel-loader',
       },
-      
-      { 
-        test: /\.css$/, 
-        use: ExtractTextPlugin.extract({
-          use: [
-            {
-              loader: 'css-loader', options: {
-                minimize: true,
-                sourceMap: true
-              }
-            }
-          ]
-        })
-      }
     ],
   },
   resolve: {
@@ -54,7 +39,6 @@ module.exports = {
     }),
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
-    new ExtractTextPlugin("styles.css"),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('development'),

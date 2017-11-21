@@ -1,12 +1,11 @@
 import fs from 'fs'
 import path from 'path'
-import KoaRouter from 'koa-better-router'
+import KoaRouter from 'koa-router'
 
 export default class Router {
   constructor(props, parent) {
     this.parent = parent;
     this.api = new KoaRouter();
-    this.api.loadMethods();
   }
 
   parseRoutesFolder() {

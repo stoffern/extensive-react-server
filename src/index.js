@@ -43,5 +43,8 @@ module.exports = class UniversalApp {
   addRoute(route){
     this.server.addRoute(route)
   }
+  addRouteSSR(prefix, app, webpackClient = {}, webpackServer = {}, options, middleware){
+    this.server.addRouteSSR(prefix, app, webpackClient, webpackServer, options, middleware)
+  }
 
 }

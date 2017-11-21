@@ -1,4 +1,8 @@
-var UniversalApp = require('../src')
+import path from 'path'
+import UniversalApp from '../src'
+import Source from './app/Routes.js'
+import clientConfig from './webpack/client.dev.js'
+import serverConfig from './webpack/server.dev.js'
 
 var app = new UniversalApp({
   environment: 'development',
@@ -28,6 +32,9 @@ var app = new UniversalApp({
   }
 });
 
+
 app.addRoute('routes/');
+
+app.addRouteSSR('', path.resolve(process.cwd(), 'app/Routes.js'));
 
 app.start();

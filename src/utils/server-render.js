@@ -10,7 +10,6 @@ import dotenv from 'dotenv'
 
 import { ServerFetcher } from './fetcher'
 import { createResolver, historyMiddlewares, render } from './Router'
-import Routes, { paths } from '../../../../app/Routes'
 
 dotenv.config()
 
@@ -36,10 +35,11 @@ const renderHtml = ({ title, meta, styleTags, relayPayload, app, js }) => `
 
 async function renderAsync(req) {
   const fetcher = new ServerFetcher(process.env.GRAPHQL_ENDPOINT, { cookie: req.headers.cookie })
+
   const { redirect, status, element } = await getFarceResult({
     url: req.url,
     historyMiddlewares,
-    routeConfig: Routes,
+    routeConfig: require(process.env.REACT_APP_PATH).default,
     resolver: createResolver(fetcher),
     render,
   })

@@ -1,47 +1,137 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
-import AppContainer from 'react-hot-loader/lib/AppContainer'
-import { createClientRouter, createClientResolver } from '../utils/Router'
+import path from 'path'
+import fs from 'fs'
+import webpack from 'webpack'
+import WriteFilePlugin from 'write-file-webpack-plugin'
+
+
 
 export default class Webpack {
   constructor(props, parent) {
     this.parent = parent;
-  }
+    this.compileConfigs = [];
 
+    this.externals = fs
+      .readdirSync(path.resolve(process.cwd(), '..', 'node_modules'))
+      .filter(x => !/\.bin|react-universal-component|webpack-flush-chunks/.test(x))
+      .reduce((externals, mod) => {
+        externals[mod] = `commonjs ${mod}`
+        return externals
+      }, {})
 
-  addConfig(config){
-    let count = this.configFiles.length
-    this.configFiles.push(config)
-
-    //return count number
-    return count+1
-  }
-
-  compileConfigs(){
-
-    return compiler
-  }
-
-
-  static renderClientJS(){
-
-    if (process.env.NODE_ENV === 'development' && module.hot) {
-      module.hot.accept('../utils/Router.js', () => {
-        this.render(require('../utils/Router').createClientRouter)
-      })
+    this.clientConfig = {
+      name: 'client',
+      target: 'web',
+      devtool: 'eval',
+      entry: [
+        'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=false&quiet=false&noInfo=false',
+        'react-hot-loader/patch',
+        path.resolve(process.cwd(), '../src/utils/client-render'),
+      ],
+      output: {
+        filename: '[name].js',
+        chunkFilename: '[name].js',
+        path: path.resolve(__dirname, 'build/client'),
+        publicPath: '/static/',
+      },
+      module: {
+        rules: [
+          {
+            test: /\.js$/,
+            exclude: /node_modules/,
+            use: 'babel-loader',
+          },
+        ],
+      },
+      resolve: {
+        extensions: ['.js'],
+      },
+      plugins: [
+        new WriteFilePlugin(),
+        new webpack.optimize.CommonsChunkPlugin({
+          names: ['bootstrap'],
+          filename: '[name].js',
+          minChunks: Infinity,
+        }),
+        new webpack.HotModuleReplacementPlugin(),
+        new webpack.NoEmitOnErrorsPlugin(),
+        new webpack.DefinePlugin({
+          'process.env': {
+            NODE_ENV: JSON.stringify('development'),
+          }
+        }),
+      ],
     }
-    this.render(createClientRouter)
+
+    this.serverConfig ={
+      name: 'server',
+      target: 'node',
+      devtool: 'eval',
+      entry: path.resolve(process.cwd(), '../src/utils/server-render'),
+      externals: this.externals,
+      output: {
+        path: path.resolve(__dirname, 'build/ssr'),
+        filename: '[name].js',
+        libraryTarget: 'commonjs2',
+      },
+      module: {
+        rules: [
+          {
+            test: /\.js$/,
+            exclude: /node_modules/,
+            use: 'babel-loader',
+          }
+        ],
+      },
+      resolve: {
+        extensions: ['.js'],
+      },
+      plugins: [
+        new WriteFilePlugin(),
+        new webpack.optimize.LimitChunkCountPlugin({
+          maxChunks: 1,
+        }),
+        new webpack.DefinePlugin({
+          'process.env': {
+            NODE_ENV: JSON.stringify('development'),
+          }
+        }),
+      ],
+    }
+
   }
 
-  async render(createRouter){
-    const resolver = createClientResolver()
-    const Router = await createRouter(resolver)
-    ReactDOM.render(
-      <AppContainer>
-        <Router resolver={resolver} />
-      </AppContainer>,
-      // eslint-disable-next-line no-undef
-      document.getElementById('root'),
-    )
+  setupClientConfig(config){
+    Object.assign(this.clientConfig, config)
+    return this
   }
+
+  setupServerConfig(config){
+    Object.assign(this.serverConfig, config)
+    return this
+  }
+
+  addToCompile(){
+    this.compileConfigs.push(config)
+    return this.compileConfigs.length-1
+  }
+
+  async addVariable(obj, id){
+    if (!typeof obj === 'object'){
+      this.parent.logger.warn('[Webpack] addVariable(object, id) - You must pass a object')
+    }
+
+    Object.assign(this.compileConfigs[id], {
+      plugins:[
+        new webpack.DefinePlugin(obj)
+      ]
+    })
+
+  }
+
+  async compile(){
+    let compile = await webpack(this.compileConfigs)
+    return compile
+  }
+
 }
