@@ -84,23 +84,15 @@ export default class Server {
     let webpack = new Webpack()
     let client = webpack.setupClientConfig(webpackClient)
     let server = webpack.setupServerConfig(webpackServer)
+    webpack.addVariable({
+      'process.env': {
+        REACT_APP_PATH: JSON.stringify(app),
+        ROUTE_PREFIX: JSON.stringify(prefix),
+      }
+    })
     let clientCompileId = this.webpack.addToCompile(clientCfg)
     let serverCompileId = this.webpack.addToCompile(serverCfg)
 
-    this.webpack.addVariable({
-      'process.env': {
-        REACT_APP_PATH: JSON.stringify(app),
-      }
-    }, clientCompileId)
-    this.webpack.addVariable({
-      'process.env': {
-        REACT_APP_PATH: JSON.stringify(app),
-      }
-    }, serverCompileId)
-    //add prefix to path
-    if (prefix.length > 0){
-
-    }
     this.SSRRoutes.push({
       clientCompileId: clientCompileId,
       serverCompileId: serverCompileId,

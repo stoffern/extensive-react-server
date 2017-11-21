@@ -116,17 +116,17 @@ export default class Webpack {
     return this.compileConfigs.length-1
   }
 
-  async addVariable(obj, id){
+  async addVariable(obj){
     if (!typeof obj === 'object'){
-      this.parent.logger.warn('[Webpack] addVariable(object, id) - You must pass a object')
+      this.parent.logger.warn('[Webpack] addVariable(object) - You must pass a object')
     }
 
-    Object.assign(this.compileConfigs[id], {
-      plugins:[
-        new webpack.DefinePlugin(obj)
-      ]
+    Object.assign(this.clientConfig, {
+      plugins:[ new webpack.DefinePlugin(obj) ]
     })
-
+    Object.assign(this.serverConfig, {
+      plugins:[ new webpack.DefinePlugin(obj) ]
+    })
   }
 
   async compile(){
