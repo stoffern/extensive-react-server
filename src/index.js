@@ -6,7 +6,7 @@ import Config from './classes/Config';
 import Server from './classes/Server';
 import Webpack from './classes/Webpack';
 
-module.exports = class UniversalApp {
+module.exports = class ExtServer {
   constructor(props) {
     this.config = Object.assign({
       environment: 'development',
@@ -41,12 +41,12 @@ module.exports = class UniversalApp {
       level: this.config.logLevel,
       transports: [
         new (winston.transports.Console)(),
-        new (winston.transports.File)({ filename: 'ua.log' })
+        new (winston.transports.File)({ filename: 'server.log' })
       ]
     });
     this.server = new Server({}, this);
     this.webpack = new Webpack({}, this);
-    this.logger.info('[Universal App] - Creating instance..')
+    this.logger.info('[ExtServer] - Creating instance..')
   }
 
   /**

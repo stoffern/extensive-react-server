@@ -157,10 +157,11 @@ export default class Webpack {
 
   setServerConfigProd(){
     this.serverConfig = webpackMerge(true, this.serverConfig, {
-      devtool: 'nosources-source-map',
+      devtool: 'source-map',
       output: {
         path: path.resolve(process.cwd(), 'build/ssr'),
-        filename: '[name].js',
+        filename: '[name].[chunkhash].js',
+        chunkFilename: '[name].[chunkhash].js',
         libraryTarget: 'commonjs2',
       },
       plugins: [
@@ -209,17 +210,24 @@ export default class Webpack {
       plugins: this.serverConfig.plugins.concat(new webpack.DefinePlugin(obj))
     })
   }
-
+  
   async compile(){
-    this.clientConfig = await this.createUniqueName(this.clientConfig)
-    this.serverConfig = await this.createUniqueName(this.serverConfig)
+    await this.updateClientConfig({name: this.clientConfig.name+'-'+uuidv4()})
+    await this.updateServerConfig({name: this.serverConfig.name+'-'+uuidv4()})
     let compile = await webpack([this.clientConfig, this.serverConfig])
+    return compile
+  }
+
+  async compileWithCallback(callback){
+    await this.updateClientConfig({name: this.clientConfig.name+'-'+uuidv4()})
+    await this.updateServerConfig({name: this.serverConfig.name+'-'+uuidv4()})
+    let compile = await webpack([this.clientConfig, this.serverConfig]).run(callback)
     return compile
   }
 
   createUniqueName(c){
     let id = uuidv4()
-    return Object.assign(c, {name: c.name+'-'+id})
+    return Object.assign(c, {name: c.name+'-'+uuidv4()})
   }
 
 }

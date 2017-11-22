@@ -9,6 +9,7 @@ import json from  'koa-json'
 import koaConvert from 'koa-convert'
 import KoaRouter from 'koa-router'
 import KoaServe from 'koa-better-serve'
+import send from 'koa-send'
 import logger from  'koa-logger'
 import path from 'path'
 import Webpack from './Webpack' 
@@ -115,7 +116,6 @@ export default class Server {
 
       await this.SSRRoutes.map( async ssrRoute => {
         const compiledConfigs = await ssrRoute.webpack.compile()
-
         await this.app.use(this.koaDevware(webpackDevMiddleware(compiledConfigs,{
           serverSideRender: true,
           publicPath: compiledConfigs.compilers[0].options.output.publicPath, 
@@ -127,32 +127,49 @@ export default class Server {
         await this.app.use(koaConvert(webpackHotMiddleware(compiledConfigs.compilers[0])))
         await this.app.use(webpackHotServerMiddleware(
           compiledConfigs, {
-          chunkName: 'asdff',
           createHandler: webpackHotServerMiddleware.createKoaHandler
         }))
       })
       this.startListen()()
 
     } else {
-      
-      await this.SSRRoutes.map( async ssrRoute => {
-        let {clientConfig,serverConfig} = ssrRoute.webpack
-        console.log(serverConfig.output)
-        await webpack([clientConfig, serverConfig]).run( (err, stats) => {
-          //host static files
-          // stats.toJson().children[0].assets.map( asset => {
-          //   this.app.use(KoaServe(path.resolve(process.cwd(), clientConfig.output.path, asset.name), path.join(clientConfig.output.publicPath, asset.name)))
-          // })
+      this.parent.logger.info('[Compile] Getting files ready, this may take a while....')
+      let routes = await this.SSRRoutes.map( ssrRoute => 
+        new Promise((resolve, reject) => {
+          const {clientConfig,serverConfig} = ssrRoute.webpack
 
-          // // //render html if route matches..
-          // let clientStats = stats.toJson().children[0]
-          // console.log(path.resolve(serverConfig.output.path, serverConfig.name+'.js'))
-          // let serverRender = require(path.resolve(serverConfig.output.path, serverConfig.name+'.js')).default
-          // this.app.use(serverRender({ clientStats }))
+          ssrRoute.webpack.compileWithCallback((err, stats) => {
 
+            //host static files and files only
+            stats.toJson().children[0].assets.map( asset => {
+              const publicPath = path.posix.join(clientConfig.output.publicPath, asset.name)
+              this.app.use( async (ctx, next) => {
+                if (ctx.path == publicPath){
+                  await send(ctx, asset.name, { root: clientConfig.output.path })
+                }else{
+                  return next()
+                }
+              })
+            })
+
+            //render html if route matches..
+            let clientStats = stats.toJson().children[0]
+            let serverStats = stats.toJson().children[1]
+
+            let serverFile
+            serverStats.assets.map(file =>{
+              if (path.extname(file.name) == '.js'){
+                serverFile = file.name
+              }
+            })
+
+            let serverRender = require(path.resolve(serverConfig.output.path, serverFile)).default
+            this.app.use(serverRender({ clientStats }))
+            resolve()
+          })
         })
-      })
-      this.startListen()()
+      )
+      Promise.all(routes).then(res => this.startListen()())
     }
   }
 
