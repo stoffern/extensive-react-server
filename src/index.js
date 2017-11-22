@@ -8,7 +8,35 @@ import Webpack from './classes/Webpack';
 
 module.exports = class UniversalApp {
   constructor(props) {
-    this.config = props;
+    this.config = Object.assign({
+      environment: 'development',
+      hostname: 'localhost',
+      port: 3000,
+
+      options:{
+        logRequests: true, 
+        useJsonPretty: true, 
+        useEtags: false,
+
+        useHelmet: true,
+        helmetOptions:{
+          noCache: true,
+          frameguard: {
+            action: 'deny'
+          }
+        },
+        useCompress: true,
+        compressOptions:{
+          threshold: 2048
+        },
+
+        useCors: true,
+        corsOptions:{
+          origin: '*'
+        },
+      }
+    }, props);
+
     this.logger = new winston.Logger({
       level: this.config.logLevel,
       transports: [

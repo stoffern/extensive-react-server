@@ -1,12 +1,15 @@
 import BrowserProtocol from 'farce/lib/BrowserProtocol'
 import queryMiddleware from 'farce/lib/queryMiddleware'
+import createBasenameMiddleware from 'farce/lib/createBasenameMiddleware'
 import createInitialFarceRouter from 'found/lib/createInitialFarceRouter'
 import createRender from 'found/lib/createRender'
 import { Resolver } from 'found-relay'
 import { Environment, Network, RecordSource, Store } from 'relay-runtime'
 import { ClientFetcher } from './fetcher'
 
-export const historyMiddlewares = [queryMiddleware]
+const basenameMiddleware = createBasenameMiddleware({ basename: process.env.ROUTE_PREFIX });
+
+export const historyMiddlewares = [queryMiddleware, basenameMiddleware]
 
 export function createResolver(fetcher) {
   const environment = new Environment({

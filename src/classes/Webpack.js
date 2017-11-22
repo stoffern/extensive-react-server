@@ -2,8 +2,8 @@ import React from 'react'
 import path from 'path'
 import fs from 'fs'
 import webpack from 'webpack'
-import WriteFilePlugin from 'write-file-webpack-plugin'
-
+import uuidv4 from 'uuid/v4'
+import webpackMerge  from 'webpack-merge'
 
 
 export default class Webpack {
@@ -22,18 +22,7 @@ export default class Webpack {
     this.clientConfig = {
       name: 'client',
       target: 'web',
-      devtool: 'eval',
-      entry: [
-        'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=false&quiet=false&noInfo=false',
-        'react-hot-loader/patch',
-        path.resolve(process.cwd(), '../src/utils/client-render'),
-      ],
-      output: {
-        filename: '[name].js',
-        chunkFilename: '[name].js',
-        path: path.resolve(__dirname, 'build/client'),
-        publicPath: '/static/',
-      },
+      devtool: 'source-map',
       module: {
         rules: [
           {
@@ -46,8 +35,49 @@ export default class Webpack {
       resolve: {
         extensions: ['.js'],
       },
+    }
+    this.serverConfig ={
+      name: 'server',
+      target: 'node',
+      devtool: 'eval',
+      entry: path.resolve(process.cwd(), 'node_modules/extendable-server/lib/utils/server-render'),
+      module: {
+        rules: [
+          {
+            test: /\.js$/,
+            exclude: /node_modules/,
+            use: 'babel-loader',
+          }
+        ],
+      },
+      resolve: {
+        extensions: ['.js'],
+      },
+    }
+
+    if (props.isDevMode){
+      this.setClientConfigDev()
+      this.setServerConfigDev()
+    }else{
+      this.setClientConfigProd()
+      this.setServerConfigProd()
+    }
+  }
+
+  setClientConfigDev(){
+    this.clientConfig = webpackMerge(true, this.clientConfig, {
+      entry: [
+        'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=false&quiet=false&noInfo=false',
+        'react-hot-loader/patch',
+        path.resolve(process.cwd(), 'node_modules/extendable-server/lib/utils/client-render'),
+      ],
+      output: {
+        filename: '[name].js',
+        chunkFilename: '[name].js',
+        path: path.resolve(process.cwd(), 'build/client'),
+        publicPath: '/static/',
+      },
       plugins: [
-        new WriteFilePlugin(),
         new webpack.optimize.CommonsChunkPlugin({
           names: ['bootstrap'],
           filename: '[name].js',
@@ -61,33 +91,58 @@ export default class Webpack {
           }
         }),
       ],
-    }
+    })
+  }
 
-    this.serverConfig ={
-      name: 'server',
-      target: 'node',
-      devtool: 'eval',
-      entry: path.resolve(process.cwd(), '../src/utils/server-render'),
-      externals: this.externals,
+  setClientConfigProd(){
+    this.clientConfig = webpackMerge(true, this.clientConfig, {
+      entry: path.resolve(process.cwd(), 'node_modules/extendable-server/lib/utils/client-render'),
+      output: {
+        filename: '[name].[chunkhash].js',
+        chunkFilename: '[name].[chunkhash].js',
+        path: path.resolve(process.cwd(), 'build/client'),
+        publicPath: '/static/',
+      },
+      plugins: [
+        new webpack.optimize.CommonsChunkPlugin({
+          names: ['bootstrap'],
+          filename: '[name].[chunkhash].js',
+          minChunks: Infinity,
+        }),
+        new webpack.DefinePlugin({
+          'process.env': {
+            NODE_ENV: JSON.stringify('production'),
+          },
+        }),
+        new webpack.optimize.UglifyJsPlugin({
+          compress: {
+            screw_ie8: true,
+            warnings: false,
+          },
+          mangle: {
+            screw_ie8: true,
+          },
+          output: {
+            screw_ie8: true,
+            comments: false,
+          },
+          sourceMap: true,
+        }),
+        new webpack.HashedModuleIdsPlugin(),
+      ],
+    })
+  }
+
+  setServerConfigDev(){
+    let externals = this.externals;
+    this.serverConfig = webpackMerge(true, this.serverConfig, {
+      externals,
       output: {
         path: path.resolve(__dirname, 'build/ssr'),
         filename: '[name].js',
         libraryTarget: 'commonjs2',
       },
-      module: {
-        rules: [
-          {
-            test: /\.js$/,
-            exclude: /node_modules/,
-            use: 'babel-loader',
-          }
-        ],
-      },
-      resolve: {
-        extensions: ['.js'],
-      },
       plugins: [
-        new WriteFilePlugin(),
         new webpack.optimize.LimitChunkCountPlugin({
           maxChunks: 1,
         }),
@@ -97,22 +152,49 @@ export default class Webpack {
           }
         }),
       ],
+    })
+  }
+
+  setServerConfigProd(){
+    this.serverConfig = webpackMerge(true, this.serverConfig, {
+      devtool: 'nosources-source-map',
+      output: {
+        path: path.resolve(process.cwd(), 'build/ssr'),
+        filename: '[name].js',
+        libraryTarget: 'commonjs2',
+      },
+      plugins: [
+        new webpack.optimize.LimitChunkCountPlugin({
+          maxChunks: 1,
+        }),
+
+        new webpack.DefinePlugin({
+          'process.env': {
+            NODE_ENV: JSON.stringify('production'),
+          },
+        }),
+      ],
+    })
+  }
+
+  updateClientConfig(cfg){
+    let strategy ={}
+    if (cfg.entry && cfg.entry.length > 0){
+      strategy.entry = 'replace'
     }
-
+    this.clientConfig = webpackMerge.strategy(strategy)(this.clientConfig, cfg)
   }
 
-  setupClientConfig(config){
-    Object.assign(this.clientConfig, config)
-    return this
+  updateServerConfig(cfg){
+    let strategy ={}
+    if (cfg.entry && cfg.entry.length > 0){
+      strategy.entry = 'replace'
+    }
+    this.serverConfig = webpackMerge.strategy(strategy)(this.serverConfig, cfg)
   }
 
-  setupServerConfig(config){
-    Object.assign(this.serverConfig, config)
-    return this
-  }
-
-  addToCompile(){
-    this.compileConfigs.push(config)
+  addToCompile(cfg){
+    this.compileConfigs.push(cfg)
     return this.compileConfigs.length-1
   }
 
@@ -120,18 +202,24 @@ export default class Webpack {
     if (!typeof obj === 'object'){
       this.parent.logger.warn('[Webpack] addVariable(object) - You must pass a object')
     }
-
-    Object.assign(this.clientConfig, {
-      plugins:[ new webpack.DefinePlugin(obj) ]
+    this.clientConfig = webpackMerge(this.clientConfig, {
+      plugins: this.clientConfig.plugins.concat(new webpack.DefinePlugin(obj))
     })
-    Object.assign(this.serverConfig, {
-      plugins:[ new webpack.DefinePlugin(obj) ]
+    this.serverConfig = webpackMerge(this.serverConfig, {
+      plugins: this.serverConfig.plugins.concat(new webpack.DefinePlugin(obj))
     })
   }
 
   async compile(){
-    let compile = await webpack(this.compileConfigs)
+    this.clientConfig = await this.createUniqueName(this.clientConfig)
+    this.serverConfig = await this.createUniqueName(this.serverConfig)
+    let compile = await webpack([this.clientConfig, this.serverConfig])
     return compile
+  }
+
+  createUniqueName(c){
+    let id = uuidv4()
+    return Object.assign(c, {name: c.name+'-'+id})
   }
 
 }

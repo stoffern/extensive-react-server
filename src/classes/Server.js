@@ -7,12 +7,12 @@ import etags from  'koa-etag'
 import helmet from  'koa-helmet'
 import json from  'koa-json'
 import koaConvert from 'koa-convert'
-import koaStatic from  'koa-static-server'
 import KoaRouter from 'koa-router'
 import KoaServe from 'koa-better-serve'
 import logger from  'koa-logger'
 import path from 'path'
 import Webpack from './Webpack' 
+import webpack from 'webpack' 
 
 //
 //Handle main Koa2 and webpack for app.
@@ -23,16 +23,16 @@ export default class Server {
     this.app = new Koa();
     this.router = new KoaRouter();
     this.routerPre = new KoaRouter();
-    this.webpack = new Webpack();
 
     this.isRunning = false;
     this.SSRRoutes = []
+    this.isDevMode = (this.parent.config.environment == 'development')? true:false
 
   }
 
   async addRoutes(routeArray){
     if (!routeArray.isArray()){
-      this.parent.logger.warn('[Server] addRoutes() - the function .addRoutes() should contain a array!')
+      this.parent.logger.warn('[Route] addRoutes() - the function should contain a array!')
       return
     }
     routeArray.map(route => this.addRoute(route))
@@ -40,7 +40,7 @@ export default class Server {
 
   async addRoute(route){
     if (!route || route.length == 0){
-      this.parent.logger.warn('[Server] addRoute() - called without a valid file/string.')
+      this.parent.logger.warn('[Route] addRoute() - called without a valid file/string.')
       return
     } 
     route = path.resolve(process.cwd(), route)
@@ -48,7 +48,7 @@ export default class Server {
       let isFile = fs.lstatSync(route).isFile()
       let isDirectory = fs.lstatSync(route).isDirectory()
       if( !isFile && !isDirectory ){
-        this.parent.logger.warn('[Server] addRoute() - path:'+ route +' - does not exist')
+        this.parent.logger.warn('[Route] addRoute() - path:'+ route +' - does not exist')
         return
       }else{
         if (isFile){
@@ -59,143 +59,102 @@ export default class Server {
         }
       }
     }catch(e){
-      this.parent.logger.warn('[Server] addRoutesFolderOrFile() - '+ e)
+      this.parent.logger.warn('[Route] addRoutesFolderOrFile() - '+ e)
     }
   }
 
   addRouteFile(file){
     let route = require(file)
     route(this.router, this.app, this.parent.config)
-    this.parent.logger.info('[Server] added: '+ file)
+    this.parent.logger.info('[Route] added: '+ file)
   }
 
-  addRouteSSR(prefix, app, webpackClient = {}, webpackServer = {}, options, middleware){
+  addRouteSSR(prefix, app, wpClientCfg, wpServerCfg, options, middleware){
 
     if (app.length == 0){
-      this.parent.logger.warn('[Server] addRouteSSR() - path to <App/> is missing')
+      this.parent.logger.warn('[Route] addRouteSSR() - path to <App/> is missing')
       return
     }
     
     if (!fs.lstatSync(app).isFile()){
-      this.parent.logger.warn('[Server] addRouteSSR() - path to <App/> does not exist')
+      this.parent.logger.warn('[Route] addRouteSSR() - path to <App/> does not exist')
       return
     }
 
-    let webpack = new Webpack()
-    let client = webpack.setupClientConfig(webpackClient)
-    let server = webpack.setupServerConfig(webpackServer)
+    let webpack = new Webpack({isDevMode: this.isDevMode}, this.parent)
+    webpack.updateClientConfig(wpClientCfg)
+    webpack.updateServerConfig(wpServerCfg)
+
+
+    if (prefix.length > 0){
+      let publicPath = path.posix.join('/', prefix, webpack.clientConfig.output.publicPath)
+      webpack.updateClientConfig({output: {publicPath: publicPath} })
+    }
+
     webpack.addVariable({
       'process.env': {
         REACT_APP_PATH: JSON.stringify(app),
-        ROUTE_PREFIX: JSON.stringify(prefix),
+        ROUTE_PREFIX: JSON.stringify(path.posix.join('/', prefix)),
       }
     })
-    let clientCompileId = this.webpack.addToCompile(clientCfg)
-    let serverCompileId = this.webpack.addToCompile(serverCfg)
 
     this.SSRRoutes.push({
-      clientCompileId: clientCompileId,
-      serverCompileId: serverCompileId,
+      webpack: webpack,
       app: app,
       middleware: middleware,
     })
+    return this.SSRRoutes[this.SSRRoutes.length-1]
   }
 
   async composeSSR(){
 
-    if (this.parent.config.environment == 'development') {
-
+    if (this.isDevMode) {
       const webpackDevMiddleware = require('webpack-dev-middleware')
       const webpackHotMiddleware = require('koa-webpack-hot-middleware')
       const webpackHotServerMiddleware = require('webpack-hot-server-middleware')
-      this.parent.logger.info('Webpack files loaded!')
 
-      const compiledConfigs = await this.webpack.compile()
+      await this.SSRRoutes.map( async ssrRoute => {
+        const compiledConfigs = await ssrRoute.webpack.compile()
 
-      await this.SSRRoutes.map( ssrRoute => {
-        this.app.use(this.koaDevware(webpackDevMiddleware(compiledConfigs, { 
-          publicPath: compiledConfigs.compilers[ssrRoute.clientCompileId].options.output.publicPath, 
+        await this.app.use(this.koaDevware(webpackDevMiddleware(compiledConfigs,{
+          serverSideRender: true,
+          publicPath: compiledConfigs.compilers[0].options.output.publicPath, 
           stats: { 
             colors: true,
             modules: false,
           } 
         })))
-
-        this.app.use(koaConvert(webpackHotMiddleware(compiledConfigs.compilers[ssrRoute.clientCompileId])))
-
-        this.app.use(webpackHotServerMiddleware(
+        await this.app.use(koaConvert(webpackHotMiddleware(compiledConfigs.compilers[0])))
+        await this.app.use(webpackHotServerMiddleware(
           compiledConfigs, {
+          chunkName: 'asdff',
           createHandler: webpackHotServerMiddleware.createKoaHandler
         }))
-
       })
-
-      compiledConfigs.plugin('done', this.startListen())
+      this.startListen()()
 
     } else {
       
-      this.parent.logger.info('Running in production mode..')
-      const publicPath = this.webpackClientCfg.output.publicPath
-      const outputPath = this.webpackClientCfg.output.path
+      await this.SSRRoutes.map( async ssrRoute => {
+        let {clientConfig,serverConfig} = ssrRoute.webpack
+        console.log(serverConfig.output)
+        await webpack([clientConfig, serverConfig]).run( (err, stats) => {
+          //host static files
+          // stats.toJson().children[0].assets.map( asset => {
+          //   this.app.use(KoaServe(path.resolve(process.cwd(), clientConfig.output.path, asset.name), path.join(clientConfig.output.publicPath, asset.name)))
+          // })
 
-      webpack([this.webpackClientCfg, this.webpackServerCfg]).run((err, stats) => {
-        const clientStats = stats.toJson().children[0]
-        const serverRender = require('../../../../build/ssr/main.js').default
+          // // //render html if route matches..
+          // let clientStats = stats.toJson().children[0]
+          // console.log(path.resolve(serverConfig.output.path, serverConfig.name+'.js'))
+          // let serverRender = require(path.resolve(serverConfig.output.path, serverConfig.name+'.js')).default
+          // this.app.use(serverRender({ clientStats }))
 
-        this.app.use(koaStatic({rootDir: outputPath, rootPath: publicPath}))
-        this.app.use(serverRender({ clientStats }))
-
-        this.startListen()()
+        })
       })
+      this.startListen()()
     }
   }
-
-
-  // async composeSSR(){
-  //   if (this.parent.config.environment == 'development') {
-
-  //     const webpackDevMiddleware = require('webpack-dev-middleware')
-  //     const webpackHotMiddleware = require('koa-webpack-hot-middleware')
-  //     const webpackHotServerMiddleware = require('webpack-hot-server-middleware')
-  //     this.parent.logger.info('Webpack files loaded!')
-
-  //     const publicPath = this.webpackClientCfg.output.publicPath
-  //     const compiler = webpack([this.webpackClientCfg, this.webpackServerCfg])
-
-  //     const clientCompiler = compiler.compilers[0]
-
-  //     this.app.use(this.koaDevware(webpackDevMiddleware(compiler, { 
-  //       publicPath, 
-  //       stats: { 
-  //         colors: true,
-  //         modules: false,
-  //       } 
-  //     })))
-
-  //     this.app.use(koaConvert(webpackHotMiddleware(clientCompiler)))
-  //     this.app.use(webpackHotServerMiddleware(compiler, {
-  //       createHandler: webpackHotServerMiddleware.createKoaHandler,
-  //     }))
-
-  //     compiler.plugin('done', this.startListen() )
-
-  //   } else {
-      
-  //     this.parent.logger.info('Running in production mode..')
-  //     const publicPath = this.webpackClientCfg.output.publicPath
-  //     const outputPath = this.webpackClientCfg.output.path
-
-  //     webpack([this.webpackClientCfg, this.webpackServerCfg]).run((err, stats) => {
-  //       const clientStats = stats.toJson().children[0]
-  //       const serverRender = require('../../../../build/ssr/main.js').default
-
-  //       this.app.use(koaStatic({rootDir: outputPath, rootPath: publicPath}))
-  //       this.app.use(serverRender({ clientStats }))
-
-  //       this.startListen()()
-  //     })
-  //   }
-  // }
 
   /**
    * Start server 
@@ -203,12 +162,12 @@ export default class Server {
    */
   async start(){
     try{
-      if (this.parent.config.environment == 'development')
+      if (this.isDevMode)
         this.parent.logger.info('[Start] Running in development mode!')
       else
         this.parent.logger.info('[Start] Running in production mode!')
 
-      if (this.parent.config.environment == 'development') this.app.use(logger())
+      if (this.parent.config.environment == 'development' && this.parent.config.options && this.parent.config.options.logRequests) this.app.use(logger())
       
       this.app.use(this.routerPre.routes());
 
@@ -285,19 +244,19 @@ export default class Server {
   }
   
   async addKoaMiddleware(){
-    if (this.parent.config.server && this.parent.config.server.useHelmet)
-      this.app.use(helmet(this.parent.config.server.helmetOptions))
+    if (this.parent.config.options && this.parent.config.options.useHelmet)
+      this.app.use(helmet(this.parent.config.options.helmetOptions))
 
-    if (this.parent.config.server && this.parent.config.server.useJsonPretty)
+    if (this.parent.config.options && this.parent.config.options.useJsonPretty)
       this.app.use(json())
     
-    if (this.parent.config.server && this.parent.config.server.useCompress)
-      this.app.use(compress(this.parent.config.server.compressOptions))
+    if (this.parent.config.options && this.parent.config.options.useCompress)
+      this.app.use(compress(this.parent.config.options.compressOptions))
 
-    if (this.parent.config.server && this.parent.config.server.useCors)
-      this.app.use(cors(this.parent.config.server.corsOptions))
+    if (this.parent.config.options && this.parent.config.options.useCors)
+      this.app.use(cors(this.parent.config.options.corsOptions))
 
-    if (this.parent.config.server && this.parent.config.server.useEtags){
+    if (this.parent.config.options && this.parent.config.options.useEtags){
       this.app.use(conditional())
       this.app.use(etags())
     }

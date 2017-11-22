@@ -1,6 +1,5 @@
 import fs from 'fs-extra'
 import path from 'path'
-import _ from 'lodash'
 const { spawn } = require('child_process');
 const { hasYarn } = require('yarn-or-npm');
 

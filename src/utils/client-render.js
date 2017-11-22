@@ -5,9 +5,10 @@ import AppContainer from 'react-hot-loader/lib/AppContainer'
 import { createClientRouter, createClientResolver } from './Router'
 
 async function render(createRouter) {
+  console.log('start')
   const resolver = createClientResolver()
   const Router = await createRouter(resolver)
-  ReactDOM.render(
+  ReactDOM.hydrate(
     <AppContainer>
       <Router resolver={resolver} />
     </AppContainer>,
@@ -16,7 +17,7 @@ async function render(createRouter) {
   )
 }
 
-if (process.env.NODE_ENV === 'development' && module.hot) {
+if (process.env.NODE_ENV === 'development' && true) {
   module.hot.accept('./Router.js', () => {
     render(require('./Router').createClientRouter)
   })
