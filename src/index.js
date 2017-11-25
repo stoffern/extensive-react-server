@@ -6,7 +6,7 @@ import Config from './classes/Config';
 import Server from './classes/Server';
 import Webpack from './classes/Webpack';
 
-module.exports = class ExtServer {
+module.exports = class ExtensiveReactServer {
   constructor(props) {
     this.config = Object.assign({
       environment: 'development',
