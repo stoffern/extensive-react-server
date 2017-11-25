@@ -58,5 +58,8 @@ typings/
 # dotenv environment variables file
 .env
 
+templates
 lib
 ua.log
+example/ua.log
+example/build
