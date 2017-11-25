@@ -1,24 +1,24 @@
 {
-  "name": "extensive-react-server",
-  "version": "0.0.0-development",
-  "description": "universal-app",
+  "name": "0.0.0-development",
+  "version": "2.0.0",
+  "description": "extensive-react-server",
   "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
     "compile": "babel --presets=react,stage-0,stage-2 -d lib/ src/",
-    "prepublish": "npm run compile",
+    "prepublishOnly": "npm run compile",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/stoffern/universal-app.git"
+    "url": "https://github.com/stoffern/extensive-react-server.git"
   },
   "author": "stoffern",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/stoffern/universal-app/issues"
+    "url": "https://github.com/stoffern/extensive-react-server/issues"
   },
-  "homepage": "https://github.com/stoffern/universal-app#readme",
+  "homepage": "https://github.com/stoffern/extensive-react-server#readme",
   "devDependencies": {
     "semantic-release": "^8.2.0"
   },
@@ -38,6 +38,7 @@
     "babel-preset-stage-2": "^6.24.1",
     "babel-runtime": "^6.23.0",
     "cz-conventional-changelog": "^2.1.0",
+    "ddos": "^0.1.25",
     "dotenv": "^4.0.0",
     "eslint": "4.10.0",
     "eslint-config-airbnb": "^16.1.0",
