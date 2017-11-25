@@ -1,4 +1,4 @@
-import Koa from  'koa'
+import koa from  'koa'
 import fs from 'fs'
 import compress from  'koa-compress'
 import conditional from  'koa-conditional-get'
@@ -14,6 +14,7 @@ import logger from  'koa-logger'
 import path from 'path'
 import Webpack from './Webpack' 
 import webpack from 'webpack' 
+import ddos from 'node-ddos'
 
 //
 //Handle main Koa2 and webpack for app.
@@ -21,7 +22,7 @@ import webpack from 'webpack'
 export default class Server {
   constructor(props, parent) {
     this.parent = parent;
-    this.app = new Koa();
+    this.app = new koa();
     this.router = new KoaRouter();
     this.routerPre = new KoaRouter();
 
@@ -261,6 +262,11 @@ export default class Server {
   }
   
   async addKoaMiddleware(){
+    if (this.parent.config.options && this.parent.config.options.useDdos){
+      let ddos = new ddos(this.parent.config.options.ddosOptions)
+      this.app.use(ddos.koa().bind(ddos))
+    }
+
     if (this.parent.config.options && this.parent.config.options.useHelmet)
       this.app.use(helmet(this.parent.config.options.helmetOptions))
 

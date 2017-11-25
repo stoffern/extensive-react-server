@@ -41,7 +41,7 @@ var server = new ExtensiveReactServer({
 server.addRoute('routes/');
 
 //To add a React app with serverside render support
-server.addRouteSSR(
+server.addReactRoute(
   '',   // URI prefix
   path.resolve(process.cwd(), 'app/Routes.js'), //path to APP file
 );
@@ -49,6 +49,18 @@ server.addRouteSSR(
 //Start server!
 server.start();
 ```
+
+
+## Features
+- [Koa](https://github.com/koajs/koa) - Koa server, 
+- [Koa Compress](https://github.com/koajs/compress) - zlib compressing
+- Koa etag
+- Koa helmet
+- Koa json
+- Koa logger
+- Koa passport
+- [x] Add support for custom routes
+- [ ] 
 
 
 ## Todo:

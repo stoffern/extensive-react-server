@@ -30,6 +30,12 @@ module.exports = class ExtensiveReactServer {
           threshold: 2048
         },
 
+        useDdos: true,
+        ddosOptions: {
+          burst:10, 
+          limit:15
+        },
+
         useCors: true,
         corsOptions:{
           origin: '*'
@@ -76,7 +82,7 @@ module.exports = class ExtensiveReactServer {
     this.logger.warn('DEPRECATED: addRouteSSR(), use addReactRoute() instead!')
     this.server.addRouteSSR(prefix, app, webpackClient, webpackServer, options, middleware)
   }
-  
+
   addReactRoute(prefix, app, webpackClient = {}, webpackServer = {}, options, middleware){
     this.server.addRouteSSR(prefix, app, webpackClient, webpackServer, options, middleware)
   }
