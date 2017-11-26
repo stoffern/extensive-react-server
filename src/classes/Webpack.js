@@ -12,7 +12,7 @@ export default class Webpack {
     this.compileConfigs = [];
 
     this.externals = fs
-      .readdirSync(path.resolve(process.cwd(), '..', 'node_modules'))
+      .readdirSync(path.resolve(process.cwd(), 'node_modules'))
       .filter(x => !/\.bin|react-universal-component|webpack-flush-chunks/.test(x))
       .reduce((externals, mod) => {
         externals[mod] = `commonjs ${mod}`

@@ -14,7 +14,7 @@ import logger from  'koa-logger'
 import path from 'path'
 import Webpack from './Webpack' 
 import webpack from 'webpack' 
-import ddos from 'node-ddos'
+import ddos from 'ddos'
 
 //
 //Handle main Koa2 and webpack for app.
