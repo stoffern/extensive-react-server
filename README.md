@@ -27,6 +27,31 @@ $ yarn add extensive-react-server
 ```
 
 ## Getting started
+Create a awsome react app `app/Routes.js`: 
+```js
+import makeRouteConfig from "found/lib/makeRouteConfig";
+
+export default makeRouteConfig(
+  <Route
+    path="/"
+    Component={() => <div>Main</div>)}
+  >
+    <Route
+      path="cool"
+      Component={() => <div>Cool</div>} 
+    />
+    <Route
+      path="foo"
+      Component={() => <div>Foo</div>} 
+    />
+    <Redirect
+      from="baz"
+      to="/foo" />
+  </Route>
+);
+```
+Remember you must return a found `makeRouteConfig`.
+
 Create a new file `server.js` with contents:
 ```js
 const ExtensiveReactServer = require('extensive-react-server')
@@ -49,6 +74,29 @@ server.addReactRoute(
 //Start server!
 server.start();
 ```
+
+Create a `.babelrc` file for your needs:
+```js
+{
+  "presets": [
+    "env",
+    "react",
+    "stage-0",
+    "stage-2"
+  ],
+  "plugins": [
+    "transform-runtime"
+  ],
+  "env": {
+    "development": {
+      "plugins": ["react-hot-loader/babel"]
+    }
+  }
+}
+```
+
+Run the server:`node server.js`
+Good luck!
 
 
 ## Features
