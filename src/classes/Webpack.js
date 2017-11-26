@@ -204,6 +204,40 @@ export default class Webpack {
     return this.compileConfigs.length-1
   }
 
+
+  async (obj){
+    if (!typeof obj === 'object'){
+      this.parent.logger.warn('[Webpack] addVariable(object) - You must pass a object')
+    }
+    this.clientConfig = webpackMerge(this.clientConfig, {
+      plugins: this.clientConfig.plugins.concat(new webpack.DefinePlugin(obj))
+    })
+    this.serverConfig = webpackMerge(this.serverConfig, {
+      plugins: this.serverConfig.plugins.concat(new webpack.DefinePlugin(obj))
+    })
+  }
+
+  async updateConfigWithStrategy(strategy, config){
+    if (!typeof config === 'strategy' || !typeof config === 'object'){
+      this.parent.logger.warn('[Webpack] updateConfigWithStrategy(strategy, object) - You must pass a object')
+    }
+    this.updateServerConfigWithStrategy(strategy, config)
+    this.updateClientConfigWithStrategy(strategy, config)
+  }
+
+  async updateServerConfigWithStrategy(strategy, config){
+    if (!typeof config === 'strategy' || !typeof config === 'object'){
+      this.parent.logger.warn('[Webpack] updateServerConfigWithStrategy(strategy, object) - You must pass a object')
+    }
+    this.serverConfig = webpackMerge.strategy(strategy)(this.serverConfig, config)
+  }
+  async updateClientConfigWithStrategy(strategy, config){
+    if (!typeof config === 'strategy' || !typeof config === 'object'){
+      this.parent.logger.warn('[Webpack] updateClientConfigWithStrategy(strategy, object) - You must pass a object')
+    }
+    this.clientConfig = webpackMerge.strategy(strategy)(this.clientConfig, config)
+  }
+
   async addVariable(obj){
     if (!typeof obj === 'object'){
       this.parent.logger.warn('[Webpack] addVariable(object) - You must pass a object')
