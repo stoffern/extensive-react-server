@@ -39,7 +39,7 @@
     "babel-runtime": "^6.23.0",
     "cz-conventional-changelog": "^2.1.0",
     "dotenv": "^4.0.0",
-    "eslint": "4.10.0",
+    "eslint": "4.12.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-loader": "^1.7.1",
     "eslint-plugin-import": "^2.3.0",
