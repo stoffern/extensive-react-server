@@ -78,12 +78,24 @@ module.exports = class ExtensiveReactServer {
     this.server.addRoute(route)
   }
 
+  /**
+   * Deprecated
+   */
   addRouteSSR(prefix, app, webpackClient = {}, webpackServer = {}, options, middleware){
     this.logger.warn('DEPRECATED: addRouteSSR(), use addReactRoute() instead!')
     this.server.addRouteSSR(prefix, app, webpackClient, webpackServer, options, middleware)
   }
 
-  addReactRoute(prefix, app, webpackClient = {}, webpackServer = {}, options, middleware){
+  /**
+   * Adds a react app to the route
+   * @param {string} prefix        [description]
+   * @param {FoundRouter} router   [description]
+   * @param {Object} webpackClient [description]
+   * @param {Object} webpackServer [description]
+   * @param {object} options       [description]
+   * @param {array} middleware    [description]
+   */
+  addReactRoute(prefix, app, webpackClient = {}, webpackServer = {}, options ={}, middleware = []){
     this.server.addRouteSSR(prefix, app, webpackClient, webpackServer, options, middleware)
   }
 
