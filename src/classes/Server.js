@@ -14,7 +14,7 @@ import logger from  'koa-logger'
 import path from 'path'
 import Webpack from './Webpack' 
 import webpack from 'webpack' 
-import ddos from 'ddos'
+import Ddos from 'ddos'
 
 //
 //Handle main Koa2 and webpack for app.
@@ -263,7 +263,7 @@ export default class Server {
   
   async addKoaMiddleware(){
     if (this.parent.config.options && this.parent.config.options.useDdos){
-      let ddos = new ddos(this.parent.config.options.ddosOptions)
+      let ddos = new Ddos(this.parent.config.options.ddosOptions)
       this.app.use(ddos.koa().bind(ddos))
     }
 
