@@ -1,24 +1,24 @@
-import path from 'path'
-import ExtensiveSrv from '../src'
+const path = require('path')
+const EReactServer = require('../lib')
 
-var srv = new ExtensiveSrv({
+var server = new EReactServer({
   environment: 'production'
 });
 
-srv.addRoute('routes/');
+server.addRoute('routes/');
 
-srv.addReactRoute(
+server.addReactRoute(
   '',
   path.resolve(process.cwd(), 'app/Routes.js'),
   {entry: path.resolve(process.cwd(), '../src/utils/client-render')},
   {entry: path.resolve(process.cwd(), '../src/utils/server-render')},
 );
 
-srv.addReactRoute(
+server.addReactRoute(
   '/test',
   path.resolve(process.cwd(), 'app/Routes.js'),
   {entry: path.resolve(process.cwd(), '../src/utils/client-render')},
   {entry: path.resolve(process.cwd(), '../src/utils/server-render')},
 );
 
-srv.start();
+server.start();

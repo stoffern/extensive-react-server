@@ -1,22 +1,15 @@
 const path = require('path')
-const ExtensiveSrv = require('../lib')
+const EReactServer = require('../lib')
 
-var srv = new ExtensiveSrv();
+var server = new EReactServer();
 
-srv.addRoute('routes/');
+server.addRoute('routes/'); //just to get a graphql server example file..
 
-srv.addReactRoute(
-  '',
-  path.resolve(process.cwd(), 'app/Routes.js'),
-  {entry: path.resolve(process.cwd(), '../src/utils/client-render')},
-  {entry: path.resolve(process.cwd(), '../src/utils/server-render')},
+server.addReactRoute(
+  '', //Route prefix
+  path.resolve(process.cwd(), 'app/Routes.js'), //Path to react app, must return a found router..
+  {entry: path.resolve(process.cwd(), '../lib/utils/client-render')},// webpack client config override
+  {entry: path.resolve(process.cwd(), '../lib/utils/server-render')},// webpack server config override
 );
 
-srv.addReactRoute(
-  '/test',
-  path.resolve(process.cwd(), 'app/Routes.js'),
-  {entry: path.resolve(process.cwd(), '../src/utils/client-render')},
-  {entry: path.resolve(process.cwd(), '../src/utils/server-render')},
-);
-
-srv.start();
+server.start();

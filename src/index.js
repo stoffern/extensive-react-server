@@ -88,7 +88,7 @@ module.exports = class ExtensiveReactServer {
    * @param {array} middleware    [description]
    */
   addReactRoute(prefix, app, webpackClient = {}, webpackServer = {}, options ={}, middleware = []){
-    this.server.addRouteSSR(prefix, app, webpackClient, webpackServer, options, middleware)
+    this.server.addReactRoute(prefix, app, webpackClient, webpackServer, options, middleware)
   }
 
 }

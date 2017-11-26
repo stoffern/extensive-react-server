@@ -24,7 +24,6 @@ export default class Server {
     this.parent = parent;
     this.app = new koa();
     this.router = new KoaRouter();
-    this.routerPre = new KoaRouter();
 
     this.isRunning = false;
     this.SSRRoutes = []
@@ -71,22 +70,20 @@ export default class Server {
     this.parent.logger.info('[Route] added: '+ file)
   }
 
-  addRouteSSR(prefix, app, wpClientCfg, wpServerCfg, options, middleware){
-
+  addReactRoute(prefix, app, wpClientCfg, wpServerCfg, options, middleware){
     if (app.length == 0){
-      this.parent.logger.warn('[Route] addRouteSSR() - path to <App/> is missing')
+      this.parent.logger.warn('[Route] addReactRoute() - path to <App/> is missing')
       return
     }
     
     if (!fs.lstatSync(app).isFile()){
-      this.parent.logger.warn('[Route] addRouteSSR() - path to <App/> does not exist')
+      this.parent.logger.warn('[Route] addReactRoute() - path to <App/> does not exist')
       return
     }
 
     let webpack = new Webpack({isDevMode: this.isDevMode}, this.parent)
     webpack.updateClientConfig(wpClientCfg)
     webpack.updateServerConfig(wpServerCfg)
-
 
     if (prefix.length > 0){
       let publicPath = path.posix.join('/', prefix, webpack.clientConfig.output.publicPath)
@@ -108,8 +105,7 @@ export default class Server {
     return this.SSRRoutes[this.SSRRoutes.length-1]
   }
 
-  async composeSSR(){
-
+  async renderReactApps(){
     if (this.isDevMode) {
       const webpackDevMiddleware = require('webpack-dev-middleware')
       const webpackHotMiddleware = require('koa-webpack-hot-middleware')
@@ -131,7 +127,6 @@ export default class Server {
           createHandler: webpackHotServerMiddleware.createKoaHandler
         }))
       })
-      this.startListen()()
 
     } else {
       this.parent.logger.info('[Compile] Getting files ready, this may take a while....')
@@ -170,7 +165,7 @@ export default class Server {
           })
         })
       )
-      Promise.all(routes).then(res => this.startListen()())
+      Promise.all(routes)
     }
   }
 
@@ -185,19 +180,14 @@ export default class Server {
       else
         this.parent.logger.info('[Start] Running in production mode!')
 
-      if (this.parent.config.environment == 'development' && this.parent.config.options && this.parent.config.options.logRequests) this.app.use(logger())
+      if (this.parent.config.environment == 'development' && this.parent.config.options && this.parent.config.options.logRequests) 
+        this.app.use(logger())
       
-      this.app.use(this.routerPre.routes());
-
-      /**
-       * add koa middleware based on configs
-       */
       await this.addKoaMiddleware()
 
-      /**
-       * Add serverside render pages
-       */
-      if (this.SSRRoutes.length > 0) await this.composeSSR()
+      if (this.SSRRoutes.length > 0) await this.renderReactApps()
+      
+      this.startListen()
 
     }catch(e){
       this.parent.logger.error('Server start(): '+ e)
@@ -208,27 +198,26 @@ export default class Server {
    * Start listening
    */
   startListen(){
-    //this is that :)
-    var that = this
+    this.parent.logger.info('Starting server on http://%s:%s <===', this.parent.config.hostname, this.parent.config.port )
+
     //add routes
-    that.app.use(that.router.middleware())
-    return () => {
-      that.parent.logger.info('Starting server on http://%s:%s <===', that.parent.config.hostname, that.parent.config.port )
-      //Only start once
-      if (!that.isRunning){
-        that.isRunning = !that.isRunning
-        that.app.listen(
-          that.parent.config.port,
-          () => {
-            that.parent.logger.info()
-            that.parent.logger.info(
-              '==> Server is up at http://%s:%s <===', 
-              that.parent.config.hostname, 
-              that.parent.config.port)
-            that.parent.logger.info()
-          }
-        )
-      }
+    this.app.use(this.router.routes())
+    this.app.use(this.router.allowedMethods())
+
+    //Only start once
+    if (!this.isRunning){
+      this.isRunning = !this.isRunning
+      this.app.listen(
+        this.parent.config.port,
+        () => {
+          this.parent.logger.info()
+          this.parent.logger.info(
+            '==> Server is up at http://%s:%s <===', 
+            this.parent.config.hostname, 
+            this.parent.config.port)
+          this.parent.logger.info()
+        }
+      )
     }
   }
 
@@ -262,10 +251,10 @@ export default class Server {
   }
   
   async addKoaMiddleware(){
-    if (this.parent.config.options && this.parent.config.options.useDdos){
-      let ddos = new Ddos(this.parent.config.options.ddosOptions)
-      this.app.use(ddos.koa().bind(ddos))
-    }
+    // if (this.parent.config.options && this.parent.config.options.useDdos){
+    //   let ddos = new Ddos(this.parent.config.options.ddosOptions)
+    //   this.app.use(ddos.koa().bind(ddos))
+    // }
 
     if (this.parent.config.options && this.parent.config.options.useHelmet)
       this.app.use(helmet(this.parent.config.options.helmetOptions))

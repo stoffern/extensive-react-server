@@ -11,13 +11,17 @@ export default class Webpack {
     this.parent = parent;
     this.compileConfigs = [];
 
-    this.externals = fs
-      .readdirSync(path.resolve(process.cwd(), 'node_modules'))
-      .filter(x => !/\.bin|react-universal-component|webpack-flush-chunks/.test(x))
-      .reduce((externals, mod) => {
-        externals[mod] = `commonjs ${mod}`
-        return externals
-      }, {})
+
+    this.externals = []
+    let modulesPath = path.resolve(process.cwd(), 'node_modules')
+    if (fs.existsSync(modulesPath) && fs.lstatSync(modulesPath).isDirectory())
+      this.externals = fs
+        .readdirSync(modulesPath)
+        .filter(x => !/\.bin|react-universal-component|webpack-flush-chunks/.test(x))
+        .reduce((externals, mod) => {
+          externals[mod] = `commonjs ${mod}`
+          return externals
+        }, {})
 
     this.clientConfig = {
       name: 'client',
@@ -36,11 +40,12 @@ export default class Webpack {
         extensions: ['.js'],
       },
     }
+
     this.serverConfig ={
       name: 'server',
       target: 'node',
       devtool: 'eval',
-      entry: path.resolve(process.cwd(), 'node_modules/extendable-server/lib/utils/server-render'),
+      entry: path.resolve(process.cwd(), 'node_modules/extensive-react-server/lib/utils/server-render'),
       module: {
         rules: [
           {
@@ -69,7 +74,7 @@ export default class Webpack {
       entry: [
         'webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=false&quiet=false&noInfo=false',
         'react-hot-loader/patch',
-        path.resolve(process.cwd(), 'node_modules/extendable-server/lib/utils/client-render'),
+        path.resolve(process.cwd(), 'node_modules/extensive-react-server/lib/utils/client-render'),
       ],
       output: {
         filename: '[name].js',
@@ -96,7 +101,7 @@ export default class Webpack {
 
   setClientConfigProd(){
     this.clientConfig = webpackMerge(true, this.clientConfig, {
-      entry: path.resolve(process.cwd(), 'node_modules/extendable-server/lib/utils/client-render'),
+      entry: path.resolve(process.cwd(), 'node_modules/extensive-react-server/lib/utils/client-render'),
       output: {
         filename: '[name].[chunkhash].js',
         chunkFilename: '[name].[chunkhash].js',
