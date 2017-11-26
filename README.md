@@ -52,15 +52,17 @@ server.start();
 
 
 ## Features
-- [Koa](https://github.com/koajs/koa) - Koa server, 
-- [Koa Compress](https://github.com/koajs/compress) - zlib compressing
-- Koa etag
-- Koa helmet
-- Koa json
-- Koa logger
-- Koa passport
-- [x] Add support for custom routes
-- [ ] 
+- [koa](https://github.com/koajs/koa) - Koa server, why? its [faster than express](https://raygun.com/blog/node-js-performance-2017/) 
+- [koa-compress](https://github.com/koajs/compress) - zlib compressing
+- [koa-etags](https://github.com/koajs/etag) - support for etags
+- [koa-helmet](https://www.npmjs.com/package/koa-helmet) - header/content security
+- [koa-logger](https://github.com/koajs/logger) - development logging
+- [kcors](https://github.com/koajs/cors) - Cross-Origin Resource Sharing(CORS)
+- [passport](http://www.passportjs.org/) - authentication layer
+- [ddos](https://github.com/rook2pawn/node-ddos) - dos/ddos protection
+- [webpack](https://webpack.js.org/) - module bundler
+- [react-hot-loader](https://github.com/gaearon/react-hot-loader) - Tweak React components in real time
+- [webpack-hot-middleware](https://github.com/glenjamin/webpack-hot-middleware) - Webpack hot reloading
 
 
 ## Todo:
@@ -69,7 +71,6 @@ server.start();
 - [ ] Allow middleware for react paths (example: authentication)
 - [ ] Add support for Relay
 - [ ] Add support for custom index.html file for SSR
-- [ ] Add
 - [ ] Create more examples
 - [ ] Better documentation
 
