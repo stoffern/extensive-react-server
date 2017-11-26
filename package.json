@@ -1,6 +1,6 @@
 {
-  "name": "0.0.0-development",
-  "version": "2.0.0",
+  "name": "extensive-react-server",
+  "version": "0.0.0-development",
   "description": "extensive-react-server",
   "main": "lib/index.js",
   "scripts": {
