@@ -5,11 +5,12 @@
 [![npm](https://img.shields.io/npm/dt/extensive-react-server.svg)](https://www.npmjs.com/package/extensive-react-server)
 [![npm](https://img.shields.io/npm/v/extensive-react-server.svg)](https://www.npmjs.com/package/extensive-react-server)
 
-Extensible server for hosting a React universal app(Isomorpic) with support for [Graphql](https://github.com/facebook/graphql), [Relay](https://github.com/facebook/relay), [Passport](https://github.com/jaredhanson/passport), and the option to customize own routes, and setup.
+Extensible server for hosting a React universal apps(Isomorpic). Host one or more apps, with or without authentication. Supports: [Graphql](https://github.com/facebook/graphql), [Relay](https://github.com/facebook/relay), [Passport](https://github.com/jaredhanson/passport), Webpack, HotReloading, custom webpack configs for every route, custom routes ++
 
 ## Why?
-All these boilerplates, starter-kits and different ways to setup, no standards for forlder structuring, file setups etc.
-Here is a all in one package for hosting [hot](https://github.com/glenjamin/webpack-hot-middleware) development and a productionready environment on a single command. Shared React state, Redux state, Relay Environement is also available.
+Boilerplates, startup-kits, setup server, webpack, hot reloading +++ its a jungle!!
+
+`extensive-react-server` has support for everything out of the box, and you can get up and running with 3 lines of code.
 
 
 ## Table of Contents

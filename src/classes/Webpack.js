@@ -264,7 +264,7 @@ export default class Webpack {
    */
   async addPlugin(config={}){
     if (!typeof config === 'object'){
-      this.parent.logger.warn('[Webpack] updateClientConfigWithStrategy(strategy, object) - You must pass a object')
+      this.parent.logger.warn('[Webpack] addPlugin(object) - You must pass a object')
     }
     this.updateConfigWithStrategy({'plugins':'append'}, {plugins: [config]})
   }
@@ -275,19 +275,19 @@ export default class Webpack {
    */
   async addPlugins(config=[]){
     if (!config.isArray){
-      this.parent.logger.warn('[Webpack] updateClientConfigWithStrategy(strategy, object) - You must pass a object')
+      this.parent.logger.warn('[Webpack] addPlugins(array) - You must pass an array')
     }
     configs.map(config => this.addPlugin(config))
   }
 
 
   /**
-   * Add webpack module bundler
+   * [addModule description]
    * @param {object} config [description]
    */
   async addModule(config={}){
     if (!typeof config === 'object'){
-      this.parent.logger.warn('[Webpack] updateClientConfigWithStrategy(strategy, object) - You must pass a object')
+      this.parent.logger.warn('[Webpack] addModule(object) - You must pass a object')
     }
     this.updateConfigWithStrategy({'module.rules':'append'}, {module:{rules: [config]}})
   }
@@ -298,9 +298,21 @@ export default class Webpack {
    */
   async addModules(configs=[]){
     if (!config.isArray){
-      this.parent.logger.warn('[Webpack] updateClientConfigWithStrategy(strategy, object) - You must pass a object')
+      this.parent.logger.warn('[Webpack] addModules(array) - You must pass an array')
     }
     configs.map(config => this.addModule(config))
+  }
+
+  /**
+   * [addVariables description]
+   * @param {[type]} obj [description]
+   */
+  async addVariables(obj={}){
+    if (!config.isArray){
+      this.parent.logger.warn('[Webpack] addVariables(array) - You must pass an array')
+    }
+    configs.map(config => this.addVariable(config))
+    this.updateConfigWithStrategy({'plugins':'append'}, {plugins: [new webpack.DefinePlugin(obj)]})
   }
 
   /**
@@ -335,16 +347,6 @@ export default class Webpack {
     await this.updateServerConfig({name: this.serverConfig.name+'-'+uuidv4()})
     let compile = await webpack([this.clientConfig, this.serverConfig]).run(callback)
     return compile
-  }
-
-  /**
-   * [createUniqueName description]
-   * @param  {[type]} c [description]
-   * @return {[type]}   [description]
-   */
-  createUniqueName(c){
-    let id = uuidv4()
-    return Object.assign(c, {name: c.name+'-'+uuidv4()})
   }
 
 }

@@ -1,6 +1,7 @@
 const path = require('path')
-const EReactServer = require('../lib')
+const EReactServer = require('../src')
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const StatsWriterPlugin = require('webpack-stats-plugin').StatsWriterPlugin;
 
 const extractSass = new ExtractTextPlugin({
     filename: "[name].[contenthash].css",
@@ -17,5 +18,29 @@ const mainRoute = server.addReactRoute(
   {entry: path.resolve(process.cwd(), '../lib/utils/client-render')},// webpack client config override
   {entry: path.resolve(process.cwd(), '../lib/utils/server-render')},// webpack server config override
 );
+
+mainRoute.webpack.addVariable({BODYMOVIN_EXPRESSION_SUPPORT: true})
+
+
+mainRoute.webpack.addModule({
+    test: /\.scss$/,
+    exclude: /node_modules/,
+    use: [{
+      loader: "style-loader"
+    },{
+      loader: "css-loader" // translates CSS into CommonJS
+    },{
+      loader: "sass-loader" // compiles Sass to CSS
+    }]
+})
+mainRoute.webpack.addPlugin(
+  new StatsWriterPlugin('stats.json', {
+    chunkModules: true,
+    modules: true,
+    chunks: true,
+    exclude: [/node_modules[\\\/]react/],
+  })
+)
+mainRoute.webpack.addPlugin(extractSass)
 
 server.start();
