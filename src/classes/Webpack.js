@@ -183,7 +183,12 @@ export default class Webpack {
     })
   }
 
-  updateClientConfig(cfg){
+  /**
+   * [updateClientConfig description]
+   * @param  {[type]} cfg [description]
+   * @return {[type]}     [description]
+   */
+  updateClientConfig(cfg={}){
     let strategy ={}
     if (cfg.entry && cfg.entry.length > 0){
       strategy.entry = 'replace'
@@ -191,7 +196,12 @@ export default class Webpack {
     this.clientConfig = webpackMerge.strategy(strategy)(this.clientConfig, cfg)
   }
 
-  updateServerConfig(cfg){
+  /**
+   * [updateServerConfig description]
+   * @param  {[type]} cfg [description]
+   * @return {[type]}     [description]
+   */
+  updateServerConfig(cfg={}){
     let strategy ={}
     if (cfg.entry && cfg.entry.length > 0){
       strategy.entry = 'replace'
@@ -199,57 +209,115 @@ export default class Webpack {
     this.serverConfig = webpackMerge.strategy(strategy)(this.serverConfig, cfg)
   }
 
-  addToCompile(cfg){
+  /**
+   * [addToCompile description]
+   * @param {[type]} cfg [description]
+   */
+  addToCompile(cfg={}){
     this.compileConfigs.push(cfg)
     return this.compileConfigs.length-1
   }
 
-
-  async (obj){
-    if (!typeof obj === 'object'){
-      this.parent.logger.warn('[Webpack] addVariable(object) - You must pass a object')
-    }
-    this.clientConfig = webpackMerge(this.clientConfig, {
-      plugins: this.clientConfig.plugins.concat(new webpack.DefinePlugin(obj))
-    })
-    this.serverConfig = webpackMerge(this.serverConfig, {
-      plugins: this.serverConfig.plugins.concat(new webpack.DefinePlugin(obj))
-    })
-  }
-
+  /**
+   * [updateConfigWithStrategy description]
+   * @param  {[type]} strategy [description]
+   * @param  {[type]} config   [description]
+   * @return {[type]}          [description]
+   */
   async updateConfigWithStrategy(strategy, config){
-    if (!typeof config === 'strategy' || !typeof config === 'object'){
+    if (!typeof strategy === 'object' || !typeof config === 'object'){
       this.parent.logger.warn('[Webpack] updateConfigWithStrategy(strategy, object) - You must pass a object')
     }
     this.updateServerConfigWithStrategy(strategy, config)
     this.updateClientConfigWithStrategy(strategy, config)
   }
 
+  /**
+   * [updateServerConfigWithStrategy description]
+   * @param  {[type]} strategy [description]
+   * @param  {[type]} config   [description]
+   * @return {[type]}          [description]
+   */
   async updateServerConfigWithStrategy(strategy, config){
-    if (!typeof config === 'strategy' || !typeof config === 'object'){
+    if (!typeof strategy === 'object' || !typeof config === 'object'){
       this.parent.logger.warn('[Webpack] updateServerConfigWithStrategy(strategy, object) - You must pass a object')
     }
     this.serverConfig = webpackMerge.strategy(strategy)(this.serverConfig, config)
   }
-  async updateClientConfigWithStrategy(strategy, config){
-    if (!typeof config === 'strategy' || !typeof config === 'object'){
+
+  /**
+   * [updateClientConfigWithStrategy description]
+   * @param  {[type]} strategy [description]
+   * @param  {[type]} config   [description]
+   * @return {[type]}          [description]
+   */
+  async updateClientConfigWithStrategy(strategy={}, config={}){
+    if (!typeof strategy === 'object' || !typeof config === 'object'){
       this.parent.logger.warn('[Webpack] updateClientConfigWithStrategy(strategy, object) - You must pass a object')
     }
     this.clientConfig = webpackMerge.strategy(strategy)(this.clientConfig, config)
   }
 
-  async addVariable(obj){
+  /**
+   * Add webpack module bundler
+   * @param {object} config [description]
+   */
+  async addPlugin(config={}){
+    if (!typeof config === 'object'){
+      this.parent.logger.warn('[Webpack] updateClientConfigWithStrategy(strategy, object) - You must pass a object')
+    }
+    this.updateConfigWithStrategy({'plugins':'append'}, {plugins: [config]})
+  }
+
+  /**
+   * [addPlugins description]
+   * @param {[type]} config [description]
+   */
+  async addPlugins(config=[]){
+    if (!config.isArray){
+      this.parent.logger.warn('[Webpack] updateClientConfigWithStrategy(strategy, object) - You must pass a object')
+    }
+    configs.map(config => this.addPlugin(config))
+  }
+
+
+  /**
+   * Add webpack module bundler
+   * @param {object} config [description]
+   */
+  async addModule(config={}){
+    if (!typeof config === 'object'){
+      this.parent.logger.warn('[Webpack] updateClientConfigWithStrategy(strategy, object) - You must pass a object')
+    }
+    this.updateConfigWithStrategy({'module.rules':'append'}, {module:{rules: [config]}})
+  }
+
+  /**
+   * [addModules description]
+   * @param {[type]} configs [description]
+   */
+  async addModules(configs=[]){
+    if (!config.isArray){
+      this.parent.logger.warn('[Webpack] updateClientConfigWithStrategy(strategy, object) - You must pass a object')
+    }
+    configs.map(config => this.addModule(config))
+  }
+
+  /**
+   * [addVariable description]
+   * @param {[type]} obj [description]
+   */
+  async addVariable(obj={}){
     if (!typeof obj === 'object'){
       this.parent.logger.warn('[Webpack] addVariable(object) - You must pass a object')
     }
-    this.clientConfig = webpackMerge(this.clientConfig, {
-      plugins: this.clientConfig.plugins.concat(new webpack.DefinePlugin(obj))
-    })
-    this.serverConfig = webpackMerge(this.serverConfig, {
-      plugins: this.serverConfig.plugins.concat(new webpack.DefinePlugin(obj))
-    })
+    this.updateConfigWithStrategy({'plugins':'append'}, {plugins: [new webpack.DefinePlugin(obj)]})
   }
   
+  /**
+   * [compile description]
+   * @return {[type]} [description]
+   */
   async compile(){
     await this.updateClientConfig({name: this.clientConfig.name+'-'+uuidv4()})
     await this.updateServerConfig({name: this.serverConfig.name+'-'+uuidv4()})
@@ -257,6 +325,11 @@ export default class Webpack {
     return compile
   }
 
+  /**
+   * [compileWithCallback description]
+   * @param  {Function} callback [description]
+   * @return {[type]}            [description]
+   */
   async compileWithCallback(callback){
     await this.updateClientConfig({name: this.clientConfig.name+'-'+uuidv4()})
     await this.updateServerConfig({name: this.serverConfig.name+'-'+uuidv4()})
@@ -264,6 +337,11 @@ export default class Webpack {
     return compile
   }
 
+  /**
+   * [createUniqueName description]
+   * @param  {[type]} c [description]
+   * @return {[type]}   [description]
+   */
   createUniqueName(c){
     let id = uuidv4()
     return Object.assign(c, {name: c.name+'-'+uuidv4()})
