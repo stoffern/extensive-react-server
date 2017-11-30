@@ -4,32 +4,32 @@ import flushChunks from 'webpack-flush-chunks'
 import { getFarceResult } from 'found/lib/server'
 import RedirectException from 'found/lib/RedirectException'
 import serialize from 'serialize-javascript'
-import { ServerStyleSheet } from 'styled-components'
 import { Helmet } from 'react-helmet'
 
 import { ServerFetcher } from './fetcher'
 import { createResolver, historyMiddlewares, render } from './Router'
 
 
-const renderHtml = ({ title, meta, styleTags, relayPayload, app, js }) => `
-<!doctype html>
-<html>
+const renderHtml = ({ title, meta, relayPayload, app, js }) =>{
+  return `
+    <!doctype html>
+    <html>
 
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    ${title}
-    ${meta}
-    ${styleTags}
-    <script>window.__RELAY_PAYLOADS__ = ${relayPayload};</script>
-  </head>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        ${title}
+        ${meta}
+        <script>window.__RELAY_PAYLOADS__ = ${relayPayload};</script>
+      </head>
 
-  <body>
-    <div id="root">${app}</div>
-    ${js}
-  </body>
+      <body>
+        <div id="root">${app}</div>
+        ${js}
+      </body>
 
-</html>`
+    </html>`
+}
 
 
 async function renderAsync(req) {
@@ -44,17 +44,14 @@ async function renderAsync(req) {
     render,
   })
 
-  const sheet = new ServerStyleSheet()
-  const app = ReactDOM.renderToString(sheet.collectStyles(element))
+  const app = ReactDOM.renderToString(element)
   const relayPayload = serialize(fetcher, { isJSON: true })
-  const styleTags = sheet.getStyleTags()
   const helmet = Helmet.renderStatic()
 
   return {
     app,
     helmet,
     relayPayload,
-    styleTags,
     redirect,
     status,
   }
@@ -63,7 +60,6 @@ async function renderAsync(req) {
 export default ({ clientStats }) => async (ctx, next) => {
   let title = ''
   let meta = ''
-  let styleTags = ''
   let relayPayload = null
   let app = ''
 
@@ -80,7 +76,6 @@ export default ({ clientStats }) => async (ctx, next) => {
     const helmet = renderResult.helmet
     title = helmet && helmet.title && helmet.title.toString()
     meta = helmet && helmet.meta && helmet.meta.toString()
-    styleTags = renderResult.styleTags
     relayPayload = renderResult.relayPayload
     app = renderResult.app
   } catch (err) {
@@ -95,7 +90,7 @@ export default ({ clientStats }) => async (ctx, next) => {
   } = flushChunks(clientStats, { chunkNames })
 
   ctx.status = 200
-  ctx.body = renderHtml({ title, meta, styleTags, relayPayload, app, js })
+  ctx.body = renderHtml({ title, meta, relayPayload, app, js })
 
   next()
 }

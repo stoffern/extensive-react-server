@@ -1,8 +1,8 @@
 const path = require('path')
-const EReactServer = require('../src')
+const EReactServer = require('../../lib')
 
 var server = new EReactServer({
-  environment: process.env.NODE_ENV || 'development'
+  environment: process.env.NODE_ENV || 'development',
   hostname: process.env.HOSTNAME || 'localhost',
   port: process.env.PORT || 3000
 }); // create a new instance

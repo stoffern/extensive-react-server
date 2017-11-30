@@ -1,6 +1,7 @@
 import React from 'react'
 import path from 'path'
 import fs from 'fs'
+import _ from 'lodash'
 import webpack from 'webpack'
 import uuidv4 from 'uuid/v4'
 import webpackMerge  from 'webpack-merge'
@@ -31,8 +32,14 @@ export default class Webpack {
         rules: [
           {
             test: /\.js$/,
+            use: {
+              loader: 'babel-loader',
+              options: {
+                babelrc: true,
+                comments: true,
+              },
+            },
             exclude: /node_modules/,
-            use: 'babel-loader',
           },
         ],
       },
@@ -51,7 +58,13 @@ export default class Webpack {
           {
             test: /\.js$/,
             exclude: /node_modules/,
-            use: 'babel-loader',
+            use: {
+              loader: 'babel-loader',
+              options: {
+                babelrc: true,
+                comments: true,
+              },
+            },
           }
         ],
       },
@@ -324,6 +337,18 @@ export default class Webpack {
       this.parent.logger.warn('[Webpack] addVariable(object) - You must pass a object')
     }
     this.updateConfigWithStrategy({'plugins':'append'}, {plugins: [new webpack.DefinePlugin(obj)]})
+  }
+
+  /**
+   * [resolveExtention description]
+   * @param {[type]} obj [description]
+   */
+  async addExtention(string){
+    if (!typeof string === 'string'){
+      this.parent.logger.warn('[Webpack] resolveExtention(string) - You must pass a string')
+    }
+    this.clientConfig.resolve.extensions = _.union(this.clientConfig.resolve.extensions, [string])
+    this.serverConfig.resolve.extensions = _.union(this.serverConfig.resolve.extensions, [string])
   }
   
   /**

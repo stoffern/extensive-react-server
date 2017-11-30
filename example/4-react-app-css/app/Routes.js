@@ -4,7 +4,16 @@ import Redirect from 'found/lib/Redirect';
 import Route from 'found/lib/Route';
 import PropTypes from 'prop-types';
 import React from 'react';
-import "./scss/main.scss"
+
+import reactCSS from 'reactcss'
+
+const styles = reactCSS({
+  'default': {
+    background: {
+      backgroundColor: '#eee',
+    },
+  },
+})
 
 function LinkItem(props) {
   return (
@@ -23,7 +32,8 @@ const propTypes = {
 
 function App({ children }) {
   return (
-    <div>
+    <div style={styles.background}>
+
       <ul>
         <LinkItem to="/">
           Main
