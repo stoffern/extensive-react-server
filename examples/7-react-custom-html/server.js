@@ -1,13 +1,9 @@
 const path = require('path')
 const EReactServer = require('../../src')
 
-var server = new EReactServer({
-  environment: process.env.NODE_ENV || 'development',
-  hostname: process.env.HOSTNAME || 'localhost',
-  port: process.env.PORT || 3000
-}); // create a new instance
+var server = new EReactServer(); // create a new instance
 
-const mainRoute = server.addReactRoute(
+const route = server.addReactRoute(
   '', //Route prefix
   path.resolve(process.cwd(), 'app/Routes.js'), //Path to react app, must return a found router..
   {entry: [
@@ -22,7 +18,7 @@ const mainRoute = server.addReactRoute(
 //
 // Adding a custom HTML
 //
-mainRoute.webpack.setHTML( ({ element, clientStats, relayPayload }) => {
+route.webpack.setHTML( ({ element, clientStats, relayPayload }) => {
   const ReactDOM = require('react-dom/server')
   const Helmet = require('react-helmet').default
   const flushChunks = require('webpack-flush-chunks').flushChunks

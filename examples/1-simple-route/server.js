@@ -1,5 +1,5 @@
 const path = require('path')
-const EReactServer = require('../../lib')
+const EReactServer = require('../../src')
 
 var server = new EReactServer({
   environment: process.env.NODE_ENV || 'development',
