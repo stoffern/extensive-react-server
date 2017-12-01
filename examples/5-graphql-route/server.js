@@ -10,5 +10,5 @@ var server = new EReactServer({
   port: process.env.PORT || 3000
 });
 
-server.addRoute('route.js'); //add routes folder
+server.addRoute('routes'); //add routes folder
 server.start();

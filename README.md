@@ -4,6 +4,7 @@
 [![Travis](https://img.shields.io/travis/stoffern/extensive-react-server.svg)](https://travis-ci.org/stoffern/extensive-react-server)
 [![npm](https://img.shields.io/npm/dt/extensive-react-server.svg)](https://www.npmjs.com/package/extensive-react-server)
 [![npm](https://img.shields.io/npm/v/extensive-react-server.svg)](https://www.npmjs.com/package/extensive-react-server)
+[![Coverage Status](https://coveralls.io/repos/github/stoffern/extensive-react-server/badge.svg?branch=master)](https://coveralls.io/github/stoffern/extensive-react-server?branch=master)
 
 Extensible server for hosting a React universal apps(Isomorpic). Host one or more apps, with or without authentication. Supports: [Graphql](https://github.com/facebook/graphql), [Relay](https://github.com/facebook/relay), [Passport](https://github.com/jaredhanson/passport), Webpack, HotReloading, custom webpack configs for every route, custom routes ++
 
