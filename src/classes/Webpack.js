@@ -12,6 +12,7 @@ export default class Webpack {
     this.parent = parent;
     this.compileConfigs = [];
 
+    this.variables = []
 
     this.externals = []
     let modulesPath = path.resolve(process.cwd(), 'node_modules')
@@ -325,7 +326,6 @@ export default class Webpack {
       this.parent.logger.warn('[Webpack] addVariables(array) - You must pass an array')
     }
     configs.map(config => this.addVariable(config))
-    this.updateConfigWithStrategy({'plugins':'append'}, {plugins: [new webpack.DefinePlugin(obj)]})
   }
 
   /**
@@ -336,7 +336,7 @@ export default class Webpack {
     if (!typeof obj === 'object'){
       this.parent.logger.warn('[Webpack] addVariable(object) - You must pass a object')
     }
-    this.updateConfigWithStrategy({'plugins':'append'}, {plugins: [new webpack.DefinePlugin(obj)]})
+    this.variables = Object.assign(this.variables, obj)
   }
 
   /**
@@ -350,12 +350,25 @@ export default class Webpack {
     this.clientConfig.resolve.extensions = _.union(this.clientConfig.resolve.extensions, [string])
     this.serverConfig.resolve.extensions = _.union(this.serverConfig.resolve.extensions, [string])
   }
+
+  async setHTML(fn){
+    if (!typeof fn === 'function'){
+      this.parent.logger.warn('[Webpack] setHTML(function) - You must pass a function')
+    }
+    this.addVariable({RENDER_HTML_FUNCTION: fn})
+  }
   
+
+  async compileVariables(){
+    this.updateConfigWithStrategy({'plugins':'append'}, {plugins: [new webpack.DefinePlugin(this.variables)]})
+  }
+
   /**
    * [compile description]
    * @return {[type]} [description]
    */
   async compile(){
+    await this.compileVariables()
     await this.updateClientConfig({name: this.clientConfig.name+'-'+uuidv4()})
     await this.updateServerConfig({name: this.serverConfig.name+'-'+uuidv4()})
     let compile = await webpack([this.clientConfig, this.serverConfig])
