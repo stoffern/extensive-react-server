@@ -111,19 +111,29 @@ Good luck!
 - [passport](http://www.passportjs.org/) - authentication layer
 - [ddos](https://github.com/rook2pawn/node-ddos) - dos/ddos protection
 - [webpack](https://webpack.js.org/) - module bundler
+- [graphql]() - GraphQL
+- [relay]() - Relay
+- [found]() - Found router
 - [react-hot-loader](https://github.com/gaearon/react-hot-loader) - Tweak React components in real time
 - [webpack-hot-middleware](https://github.com/glenjamin/webpack-hot-middleware) - Webpack hot reloading
+- [winston]() - Winston logger
 
 
 ## Todo:
 - [x] Add support for custom routes
 - [x] Add support for multiple React apps with serverside render (SSR)
 - [ ] Allow middleware for react paths (example: authentication)
+- [ ] Add support for Passport
 - [ ] Add support for Relay
-- [ ] Add support for custom index.html file for SSR
-- [ ] Create more examples
+- [x] Add support for custom index.html file for SSR
+- [x] Create examples
 - [ ] Better documentation
 
 
 ## Thanks to:
+- [taion](https://github.com/taion) for found router
+- [sokra](https://github.com/sokra) for webpack
+- [glenjamin](https://github.com/glenjamin) for webpack hot middleware
+- [richardscarrott](https://github.com/richardscarrott) for webpack hot server middleware
 - [jkettmann](https://github.com/jkettmann) for a good startupkit
+and many more ++

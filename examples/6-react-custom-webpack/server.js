@@ -1,5 +1,6 @@
 const path = require('path')
-const EReactServer = require('../../lib')
+const webpack = require('webpack')
+const EReactServer = require('../../src')
 
 var server = new EReactServer(); // create a new instance
 
@@ -17,6 +18,6 @@ route.webpack.addVariables([{MYVAR2: 'variable'}, {MYVAR3: 'another'}])
 //read more about strategy and how here: https://github.com/survivejs/webpack-merge#mergestrategy-field-prependappendreplaceconfiguration-configuration
 route.webpack.updateConfigWithStrategy({'plugins':'append'}, {plugins: [new webpack.DefinePlugin({SOME_VARIABLE: 'test'})]})
 
-//see docs for more functions 
+//see docs for more functions & snacks
 
 server.start(); //start server

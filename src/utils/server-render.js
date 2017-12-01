@@ -70,10 +70,10 @@ export default ({ clientStats }) => async (ctx, next) => {
   }
 
   ctx.status = 200
-  if (RENDER_HTML_FUNCTION) 
+  if ( typeof RENDER_HTML_FUNCTION !== 'undefined') 
     ctx.body = RENDER_HTML_FUNCTION({ element, clientStats, relayPayload })
-  // else
-    // ctx.body = renderHtml({ element, clientStats, relayPayload })
+  else
+    ctx.body = renderHtml({ element, clientStats, relayPayload })
 
   next()
 }

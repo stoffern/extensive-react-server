@@ -321,11 +321,11 @@ export default class Webpack {
    * [addVariables description]
    * @param {[type]} obj [description]
    */
-  async addVariables(obj={}){
-    if (!config.isArray){
+  async addVariables(array=[]){
+    if (!array.isArray){
       this.parent.logger.warn('[Webpack] addVariables(array) - You must pass an array')
     }
-    configs.map(config => this.addVariable(config))
+    array.map(cfg => this.addVariable(cfg))
   }
 
   /**
