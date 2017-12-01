@@ -83,7 +83,7 @@
     "react-helmet": "^5.2.0",
     "react-hot-loader": "next",
     "react-relay": "^1.4.0",
-    "react-universal-component": "^2.5.4",
+    "react-universal-component": "^2.7.2",
     "relay-compiler": "^1.4.0",
     "relay-runtime": "^1.4.0",
     "serialize-javascript": "^1.4.0",
