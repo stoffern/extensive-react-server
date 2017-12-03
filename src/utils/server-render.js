@@ -52,7 +52,7 @@ export default ({ clientStats }) => async (ctx, next) => {
       return next()
     }
 
-    var fetcher = new ServerFetcher(process.env.GRAPHQL_ENDPOINT, { cookie: ctx.headers.cookie })
+    var fetcher = new ServerFetcher(process.env.GRAPHQL_ENDPOINT)
     var { redirect, status, element } = await getFarceResult({
       url: ctx.url,
       historyMiddlewares,
@@ -70,6 +70,8 @@ export default ({ clientStats }) => async (ctx, next) => {
   }
 
   ctx.status = 200
+
+  // Use custom render function if passed
   if ( typeof RENDER_HTML_FUNCTION !== 'undefined') 
     ctx.body = RENDER_HTML_FUNCTION({ element, clientStats, relayPayload })
   else

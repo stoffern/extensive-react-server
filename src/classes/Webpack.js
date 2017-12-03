@@ -357,6 +357,13 @@ export default class Webpack {
     }
     this.addVariable({RENDER_HTML_FUNCTION: fn})
   }
+
+  async setGraphqlEnpoint(endpoint){
+    if (!typeof fn === 'string'){
+      this.parent.logger.warn('[Webpack] setGraphqlEnpoint(function) - You must pass a string')
+    }
+    this.addVariable({GRAPHQL_ENDPOINT: endpoint})
+  }
   
 
   async compileVariables(){
