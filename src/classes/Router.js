@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import KoaRouter from 'koa-router'
+import KoaStatic from 'koa-static-server'
 
 export default class Router {
   constructor(props, parent) {
@@ -8,29 +9,64 @@ export default class Router {
     this.api = new KoaRouter();
   }
 
-  parseRoutesFolder() {
-    let folderExists = fs.lstatSync(this.routesPath).isDirectory()
-    if (folderExists){
-      fs.readdirSync(this.routesPath).forEach(file => {
-        if (file == 'index.js') return;
-        var name = file.substr(0, file.indexOf('.'));
-        let route = require(path.join(this.routesPath, name));
-        route(this.api);
-      });
-    }
+  addRouteFile(file){
+    let route = require(file)
+    route(this.api, this.parent.app, this.parent.parent.config)
+    this.parent.logger.info('[Route] added: '+ file)
   }
 
   async addRoutes(routeArray){
     if (!routeArray.isArray()){
-      this.parent.logger.warn('[Router] addRoutes() - the function .addRoutes() should contain a array!')
+      this.parent.logger.warn('[Route] addRoutes() - the function should contain a array!')
       return
     }
     routeArray.map(route => this.addRoute(route))
   }
 
+  addStaticFile(filePath, servePath){
+    if (!filePath || filePath.length == 0){
+      this.parent.logger.warn('[Router] addStaticFile() - called without a valid file/string.')
+      return
+    } 
+
+    try{
+      let isFile = fs.lstatSync(filePath).isFile()
+      if( !isFile ){
+        this.parent.logger.warn('[Router] addStaticFile() - path:'+ filePath +' - is not a file')
+        return
+      }else{
+        this.parent.app.use(KoaStatic({rootDir: filePath, rootPath: servePath}))
+      }
+    }
+
+
+  }
+
+  addStaticFolder(filePath, servePath){
+    if (!filePath || filePath.length == 0){
+      this.parent.logger.warn('[Router] addStaticFolder() - called without a valid file/string.')
+      return
+    } 
+
+    try{
+      let isFile = fs.lstatSync(filePath).isFile()
+      let isDirectory = fs.lstatSync(filePath).isDirectory()
+      if( !isFile && !isDirectory ){
+        this.parent.logger.warn('[Route] addStaticFolder() - path:'+ filePath +' - does not exist')
+        return
+      }else{
+        if (isFile){
+          this.addStaticFile(filePath)
+        }else{
+          this.parent.app.use(KoaStatic({rootDir: filePath, rootPath: servePath}))
+          //host folder
+        }
+      }
+  }
+
   async addRoute(route){
     if (!route || route.length == 0){
-      this.parent.logger.warn('[Router] addRoute() - called without a valid file/string.')
+      this.parent.logger.warn('[Route] addRoute() - called without a valid file/string.')
       return
     } 
     route = path.resolve(process.cwd(), route)
@@ -38,7 +74,7 @@ export default class Router {
       let isFile = fs.lstatSync(route).isFile()
       let isDirectory = fs.lstatSync(route).isDirectory()
       if( !isFile && !isDirectory ){
-        this.parent.logger.warn('[Router] addRoute() - path:'+ route +' - does not exist')
+        this.parent.logger.warn('[Route] addRoute() - path:'+ route +' - does not exist')
         return
       }else{
         if (isFile){
@@ -49,40 +85,9 @@ export default class Router {
         }
       }
     }catch(e){
-      this.parent.logger.warn('[Router] addRoutesFolderOrFile() - '+ e)
+      this.parent.logger.warn('[Route] addRoutesFolderOrFile() - '+ e)
     }
   }
 
-
-  async addPath(path){
-    try{
-      let isFile = fs.lstatSync(path).isFile()
-      let isDirectory = fs.lstatSync(path).isDirectory()
-      if( !isFile && !isDirectory ){
-        this.parent.logger.warn('[Router] addPath() - Path:'+ path +' - must be a file or folder')
-        return
-      }else{
-        if (isFile)
-          this.addStaticFile(path)
-        else
-          this.addStaticFolder(path)
-      }
-    }catch(e){
-      this.parent.logger.warn('[Router] addPath(): '+ e)
-    }
-
-  }
-  async addStaticFile(file){
-
-  }
-  async addStaticFolder(folder){
-
-  }
-
-  addRouteFile(file){
-    let route = require(file);
-    route(this.api, this.parent.server, this.parent.config);
-    this.parent.logger.info('[Router] added: '+ file)
-  }
 
 }

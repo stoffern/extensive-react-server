@@ -7,14 +7,15 @@ import etags from  'koa-etag'
 import helmet from  'koa-helmet'
 import json from  'koa-json'
 import koaConvert from 'koa-convert'
-import KoaRouter from 'koa-router'
-import KoaServe from 'koa-better-serve'
 import send from 'koa-send'
 import logger from  'koa-logger'
 import path from 'path'
-import Webpack from './Webpack' 
 import webpack from 'webpack' 
 import Ddos from 'ddos'
+
+import Router from './Router'
+import Webpack from './Webpack' 
+import ReactRoute from './ReactRoute'
 
 //
 //Handle main Koa2 and webpack for app.
@@ -23,51 +24,12 @@ export default class Server {
   constructor(props, parent) {
     this.parent = parent;
     this.app = new koa();
-    this.router = new KoaRouter();
+    this.router = new Router();
 
     this.isRunning = false;
     this.SSRRoutes = []
     this.isDevMode = (this.parent.config.environment == 'development')? true:false
 
-  }
-
-  async addRoutes(routeArray){
-    if (!routeArray.isArray()){
-      this.parent.logger.warn('[Route] addRoutes() - the function should contain a array!')
-      return
-    }
-    routeArray.map(route => this.addRoute(route))
-  }
-
-  async addRoute(route){
-    if (!route || route.length == 0){
-      this.parent.logger.warn('[Route] addRoute() - called without a valid file/string.')
-      return
-    } 
-    route = path.resolve(process.cwd(), route)
-    try{
-      let isFile = fs.lstatSync(route).isFile()
-      let isDirectory = fs.lstatSync(route).isDirectory()
-      if( !isFile && !isDirectory ){
-        this.parent.logger.warn('[Route] addRoute() - path:'+ route +' - does not exist')
-        return
-      }else{
-        if (isFile){
-          this.addRouteFile(route)
-        }else{
-          let files = await fs.readdirSync(route)
-          files.forEach(file => this.addRouteFile(path.resolve(route, file)) );
-        }
-      }
-    }catch(e){
-      this.parent.logger.warn('[Route] addRoutesFolderOrFile() - '+ e)
-    }
-  }
-
-  addRouteFile(file){
-    let route = require(file)
-    route(this.router, this.app, this.parent.config)
-    this.parent.logger.info('[Route] added: '+ file)
   }
 
   addReactRoute(prefix, app, wpClientCfg, wpServerCfg, options, middleware){
@@ -81,27 +43,9 @@ export default class Server {
       return
     }
 
-    let webpack = new Webpack({isDevMode: this.isDevMode}, this.parent)
-    webpack.updateClientConfig(wpClientCfg)
-    webpack.updateServerConfig(wpServerCfg)
+    let route = new ReactRoute(prefix, app, wpClientCfg, wpServerCfg, options, middleware)
 
-    if (prefix.length > 0){
-      let publicPath = path.posix.join('/', prefix, webpack.clientConfig.output.publicPath)
-      webpack.updateClientConfig({output: {publicPath: publicPath} })
-    }
-
-    webpack.addVariable({
-      'process.env': {
-        REACT_APP_PATH: JSON.stringify(app),
-        ROUTE_PREFIX: JSON.stringify(path.posix.join('/', prefix)),
-      }
-    })
-
-    this.SSRRoutes.push({
-      webpack: webpack,
-      app: app,
-      middleware: middleware,
-    })
+    this.SSRRoutes.push(route)
     return this.SSRRoutes[this.SSRRoutes.length-1]
   }
 
@@ -111,8 +55,8 @@ export default class Server {
       const webpackHotMiddleware = require('koa-webpack-hot-middleware')
       const webpackHotServerMiddleware = require('webpack-hot-server-middleware')
 
-      await this.SSRRoutes.map( async ssrRoute => {
-        const compiledConfigs = await ssrRoute.webpack.compile()
+      await this.SSRRoutes.map( async routeObject => {
+        const compiledConfigs = await routeObject.webpack.compile()
         await this.app.use(this.koaDevware(webpackDevMiddleware(compiledConfigs,{
           serverSideRender: true,
           publicPath: compiledConfigs.compilers[0].options.output.publicPath, 
@@ -130,11 +74,11 @@ export default class Server {
 
     } else {
       this.parent.logger.info('[Compile] Getting files ready, this may take a while....')
-      let routes = await this.SSRRoutes.map( ssrRoute => 
+      let routes = await this.SSRRoutes.map( routeObject => 
         new Promise((resolve, reject) => {
-          const {clientConfig,serverConfig} = ssrRoute.webpack
+          const {clientConfig,serverConfig} = routeObject.webpack
 
-          ssrRoute.webpack.compileWithCallback((err, stats) => {
+          routeObject.webpack.compileWithCallback((err, stats) => {
 
             //host static files and files only
             stats.toJson().children[0].assets.map( asset => {
@@ -201,8 +145,8 @@ export default class Server {
     this.parent.logger.info('Starting server on http://%s:%s <===', this.parent.config.hostname, this.parent.config.port )
 
     //add routes
-    this.app.use(this.router.routes())
-    this.app.use(this.router.allowedMethods())
+    this.app.use(this.router.api.routes())
+    this.app.use(this.router.api.allowedMethods())
 
     //Only start once
     if (!this.isRunning){

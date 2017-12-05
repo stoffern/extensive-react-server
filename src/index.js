@@ -71,7 +71,7 @@ module.exports = class ExtensiveReactServer {
    * @param {array} routes [route, route2, routefolder, routefolder3]
    */
   addRoutes(routes){
-    this.server.addRoutes(route)
+    this.server.router.addRoutes(route)
   }
 
   /**
@@ -79,7 +79,23 @@ module.exports = class ExtensiveReactServer {
    * @param {string} route path/to/route.js
    */
   addRoute(route){
-    this.server.addRoute(route)
+    this.server.router.addRoute(route)
+  }
+
+  /**
+   * [description]
+   * @param {[type]}
+   */
+  addStaticFile(filePath, servePath){
+    this.server.router.addStaticFile(file)
+  }
+
+  /**
+   * [description]
+   * @param {[type]}
+   */
+  addStaticFolder(filePath, servePath){
+    this.server.router.addStaticFolder(folder)
   }
 
   /**
