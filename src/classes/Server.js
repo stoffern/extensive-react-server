@@ -23,8 +23,9 @@ import ReactRoute from './ReactRoute'
 export default class Server {
   constructor(props, parent) {
     this.parent = parent;
+    this.logger = parent.logger
     this.app = new koa();
-    this.router = new Router();
+    this.router = new Router({}, this);
 
     this.isRunning = false;
     this.SSRRoutes = []

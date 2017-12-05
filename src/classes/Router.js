@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import KoaRouter from 'koa-router'
+import KoaSend from 'koa-send'
 import KoaStatic from 'koa-static-server'
 
 export default class Router {
@@ -9,40 +10,42 @@ export default class Router {
     this.api = new KoaRouter();
   }
 
-  addRouteFile(file){
+  async addRouteFile(file){
     let route = require(file)
-    route(this.api, this.parent.app, this.parent.parent.config)
+    route(this.api, this.parent.app, this.parent.config)
     this.parent.logger.info('[Route] added: '+ file)
   }
 
-  async addRoutes(routeArray){
+  async addRouteFolder(routeArray){
     if (!routeArray.isArray()){
-      this.parent.logger.warn('[Route] addRoutes() - the function should contain a array!')
+      this.parent.logger.warn('[Route] addRouteFolder() - the function should contain a array!')
       return
     }
     routeArray.map(route => this.addRoute(route))
   }
 
-  addStaticFile(filePath, servePath){
-    if (!filePath || filePath.length == 0){
-      this.parent.logger.warn('[Router] addStaticFile() - called without a valid file/string.')
-      return
-    } 
+  // async addStaticFile(filePath, servePath){
+  //   if (!filePath || filePath.length == 0){
+  //     this.parent.logger.warn('[Router] addStaticFile() - called without a valid file/string.')
+  //     return
+  //   } 
 
-    try{
-      let isFile = fs.lstatSync(filePath).isFile()
-      if( !isFile ){
-        this.parent.logger.warn('[Router] addStaticFile() - path:'+ filePath +' - is not a file')
-        return
-      }else{
-        this.parent.app.use(KoaStatic({rootDir: filePath, rootPath: servePath}))
-      }
-    }
+  //   try{
+  //     let isFile = fs.lstatSync(filePath).isFile()
+  //     if( !isFile ){
+  //       this.parent.logger.warn('[Router] addStaticFile() - path:'+ filePath +' - is not a file')
+  //       return
+  //     }else{
 
+  //       //send file
+  //     }
+  //   }catch(e){
+  //     this.parent.logger.warn('[Router] addStaticFile()')
+  //     this.parent.logger.warn(e)
+  //   }
+  // }
 
-  }
-
-  addStaticFolder(filePath, servePath){
+  async addStaticFolder(filePath, servePath){
     if (!filePath || filePath.length == 0){
       this.parent.logger.warn('[Router] addStaticFolder() - called without a valid file/string.')
       return
@@ -62,6 +65,11 @@ export default class Router {
           //host folder
         }
       }
+    }catch(e){
+      this.parent.logger.warn('[Router] addStaticFile()')
+      this.parent.logger.warn(e)
+    }
+
   }
 
   async addRoute(route){
@@ -88,6 +96,4 @@ export default class Router {
       this.parent.logger.warn('[Route] addRoutesFolderOrFile() - '+ e)
     }
   }
-
-
 }

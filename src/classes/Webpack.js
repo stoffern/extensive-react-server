@@ -340,22 +340,15 @@ export default class Webpack {
   }
 
   /**
-   * [resolveExtention description]
+   * [addExtention description]
    * @param {[type]} obj [description]
    */
   async addExtention(string){
     if (!typeof string === 'string'){
-      this.parent.logger.warn('[Webpack] resolveExtention(string) - You must pass a string')
+      this.parent.logger.warn('[Webpack] addExtention(string) - You must pass a string')
     }
     this.clientConfig.resolve.extensions = _.union(this.clientConfig.resolve.extensions, [string])
     this.serverConfig.resolve.extensions = _.union(this.serverConfig.resolve.extensions, [string])
-  }
-
-  async setHTML(fn){
-    if (!typeof fn === 'function'){
-      this.parent.logger.warn('[Webpack] setHTML(function) - You must pass a function')
-    }
-    this.addVariable({RENDER_HTML_FUNCTION: fn})
   }
 
   async setGraphqlEnpoint(endpoint){
