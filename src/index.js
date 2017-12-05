@@ -2,7 +2,6 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import winston from 'winston'
 
-import Config from './classes/Config';
 import Server from './classes/Server';
 import Webpack from './classes/Webpack';
 
@@ -14,6 +13,9 @@ module.exports = class ExtensiveReactServer {
       port: 3000,
 
       options:{
+        logToFile: false,
+        logFile: 'server.log',
+
         logRequests: true, 
         useJsonPretty: true, 
         useEtags: false,
@@ -43,13 +45,15 @@ module.exports = class ExtensiveReactServer {
       }
     }, props);
 
+    let transports = [ new (winston.transports.Console)() ]
+    if (this.config.options.logToFile)
+      transports.push(new (winston.transports.File)({ filename: this.config.options.logFile }))
+
     this.logger = new winston.Logger({
-      level: this.config.logLevel,
-      transports: [
-        new (winston.transports.Console)(),
-        new (winston.transports.File)({ filename: 'server.log' })
-      ]
+      level: this.config.options.logLevel,
+      transports: transports
     });
+
     this.server = new Server({}, this);
     this.webpack = new Webpack({}, this);
     this.logger.info('[ExtServer] - Creating instance..')

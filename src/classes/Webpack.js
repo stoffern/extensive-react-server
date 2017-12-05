@@ -1,6 +1,7 @@
 import React from 'react'
 import path from 'path'
 import fs from 'fs'
+import _ from 'lodash'
 import webpack from 'webpack'
 import uuidv4 from 'uuid/v4'
 import webpackMerge  from 'webpack-merge'
@@ -11,6 +12,7 @@ export default class Webpack {
     this.parent = parent;
     this.compileConfigs = [];
 
+    this.variables = []
 
     this.externals = []
     let modulesPath = path.resolve(process.cwd(), 'node_modules')
@@ -31,8 +33,14 @@ export default class Webpack {
         rules: [
           {
             test: /\.js$/,
+            use: {
+              loader: 'babel-loader',
+              options: {
+                babelrc: true,
+                comments: true,
+              },
+            },
             exclude: /node_modules/,
-            use: 'babel-loader',
           },
         ],
       },
@@ -51,7 +59,13 @@ export default class Webpack {
           {
             test: /\.js$/,
             exclude: /node_modules/,
-            use: 'babel-loader',
+            use: {
+              loader: 'babel-loader',
+              options: {
+                babelrc: true,
+                comments: true,
+              },
+            },
           }
         ],
       },
@@ -307,12 +321,11 @@ export default class Webpack {
    * [addVariables description]
    * @param {[type]} obj [description]
    */
-  async addVariables(obj={}){
-    if (!config.isArray){
+  async addVariables(array=[]){
+    if (!array.isArray){
       this.parent.logger.warn('[Webpack] addVariables(array) - You must pass an array')
     }
-    configs.map(config => this.addVariable(config))
-    this.updateConfigWithStrategy({'plugins':'append'}, {plugins: [new webpack.DefinePlugin(obj)]})
+    array.map(cfg => this.addVariable(cfg))
   }
 
   /**
@@ -323,14 +336,46 @@ export default class Webpack {
     if (!typeof obj === 'object'){
       this.parent.logger.warn('[Webpack] addVariable(object) - You must pass a object')
     }
-    this.updateConfigWithStrategy({'plugins':'append'}, {plugins: [new webpack.DefinePlugin(obj)]})
+    this.variables = Object.assign(this.variables, obj)
+  }
+
+  /**
+   * [resolveExtention description]
+   * @param {[type]} obj [description]
+   */
+  async addExtention(string){
+    if (!typeof string === 'string'){
+      this.parent.logger.warn('[Webpack] resolveExtention(string) - You must pass a string')
+    }
+    this.clientConfig.resolve.extensions = _.union(this.clientConfig.resolve.extensions, [string])
+    this.serverConfig.resolve.extensions = _.union(this.serverConfig.resolve.extensions, [string])
+  }
+
+  async setHTML(fn){
+    if (!typeof fn === 'function'){
+      this.parent.logger.warn('[Webpack] setHTML(function) - You must pass a function')
+    }
+    this.addVariable({RENDER_HTML_FUNCTION: fn})
+  }
+
+  async setGraphqlEnpoint(endpoint){
+    if (!typeof fn === 'string'){
+      this.parent.logger.warn('[Webpack] setGraphqlEnpoint(function) - You must pass a string')
+    }
+    this.addVariable({GRAPHQL_ENDPOINT: endpoint})
   }
   
+
+  async compileVariables(){
+    this.updateConfigWithStrategy({'plugins':'append'}, {plugins: [new webpack.DefinePlugin(this.variables)]})
+  }
+
   /**
    * [compile description]
    * @return {[type]} [description]
    */
   async compile(){
+    await this.compileVariables()
     await this.updateClientConfig({name: this.clientConfig.name+'-'+uuidv4()})
     await this.updateServerConfig({name: this.serverConfig.name+'-'+uuidv4()})
     let compile = await webpack([this.clientConfig, this.serverConfig])

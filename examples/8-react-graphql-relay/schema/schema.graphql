@@ -1,0 +1,25 @@
+schema {
+  query: RootType
+}
+
+type MemberType {
+  id: Int
+  name: String
+  tickets: [TicketType]
+}
+
+type ProjectType {
+  id: Int
+  name: String
+  members: [MemberType]
+}
+
+type RootType {
+  projects: [ProjectType]
+  project(id: ID!): ProjectType
+}
+
+type TicketType {
+  id: String
+  message: String
+}

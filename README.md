@@ -4,6 +4,7 @@
 [![Travis](https://img.shields.io/travis/stoffern/extensive-react-server.svg)](https://travis-ci.org/stoffern/extensive-react-server)
 [![npm](https://img.shields.io/npm/dt/extensive-react-server.svg)](https://www.npmjs.com/package/extensive-react-server)
 [![npm](https://img.shields.io/npm/v/extensive-react-server.svg)](https://www.npmjs.com/package/extensive-react-server)
+[![Coverage Status](https://coveralls.io/repos/github/stoffern/extensive-react-server/badge.svg?branch=master)](https://coveralls.io/github/stoffern/extensive-react-server?branch=master)
 
 Extensible server for hosting a React universal apps(Isomorpic). Host one or more apps, with or without authentication. Supports: [Graphql](https://github.com/facebook/graphql), [Relay](https://github.com/facebook/relay), [Passport](https://github.com/jaredhanson/passport), Webpack, HotReloading, custom webpack configs for every route, custom routes ++
 
@@ -110,19 +111,29 @@ Good luck!
 - [passport](http://www.passportjs.org/) - authentication layer
 - [ddos](https://github.com/rook2pawn/node-ddos) - dos/ddos protection
 - [webpack](https://webpack.js.org/) - module bundler
+- [graphql]() - GraphQL
+- [relay]() - Relay
+- [found]() - Found router
 - [react-hot-loader](https://github.com/gaearon/react-hot-loader) - Tweak React components in real time
 - [webpack-hot-middleware](https://github.com/glenjamin/webpack-hot-middleware) - Webpack hot reloading
+- [winston]() - Winston logger
 
 
 ## Todo:
 - [x] Add support for custom routes
 - [x] Add support for multiple React apps with serverside render (SSR)
 - [ ] Allow middleware for react paths (example: authentication)
+- [ ] Add support for Passport
 - [ ] Add support for Relay
-- [ ] Add support for custom index.html file for SSR
-- [ ] Create more examples
+- [x] Add support for custom index.html file for SSR
+- [x] Create examples
 - [ ] Better documentation
 
 
 ## Thanks to:
+- [taion](https://github.com/taion) for found router
+- [sokra](https://github.com/sokra) for webpack
+- [glenjamin](https://github.com/glenjamin) for webpack hot middleware
+- [richardscarrott](https://github.com/richardscarrott) for webpack hot server middleware
 - [jkettmann](https://github.com/jkettmann) for a good startupkit
+and many more ++

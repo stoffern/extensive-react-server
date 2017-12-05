@@ -4,98 +4,78 @@ import flushChunks from 'webpack-flush-chunks'
 import { getFarceResult } from 'found/lib/server'
 import RedirectException from 'found/lib/RedirectException'
 import serialize from 'serialize-javascript'
-import { ServerStyleSheet } from 'styled-components'
 import { Helmet } from 'react-helmet'
 
 import { ServerFetcher } from './fetcher'
 import { createResolver, historyMiddlewares, render } from './Router'
 
 
-const renderHtml = ({ title, meta, styleTags, relayPayload, app, js }) => `
-<!doctype html>
-<html>
+const renderHtml = ({ element, clientStats, relayPayload }) => {
 
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    ${title}
-    ${meta}
-    ${styleTags}
-    <script>window.__RELAY_PAYLOADS__ = ${relayPayload};</script>
-  </head>
+  const app = ReactDOM.renderToString(element)
 
-  <body>
-    <div id="root">${app}</div>
-    ${js}
-  </body>
-
-</html>`
-
-
-async function renderAsync(req) {
-
-  const fetcher = new ServerFetcher(process.env.GRAPHQL_ENDPOINT, { cookie: req.headers.cookie })
-  
-  const { redirect, status, element } = await getFarceResult({
-    url: req.url,
-    historyMiddlewares,
-    routeConfig: require(process.env.REACT_APP_PATH).default,
-    resolver: createResolver(fetcher),
-    render,
+  const { js, styles, cssHash } = flushChunks(clientStats, {
+    chunkNames: flushChunkNames()
   })
 
-  const sheet = new ServerStyleSheet()
-  const app = ReactDOM.renderToString(sheet.collectStyles(element))
-  const relayPayload = serialize(fetcher, { isJSON: true })
-  const styleTags = sheet.getStyleTags()
   const helmet = Helmet.renderStatic()
+  let title = helmet && helmet.title && helmet.title.toString()
+  let meta = helmet && helmet.meta && helmet.meta.toString()
 
-  return {
-    app,
-    helmet,
-    relayPayload,
-    styleTags,
-    redirect,
-    status,
-  }
+  return `
+    <!doctype html>
+    <html>
+
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        ${title}
+        ${meta}
+        ${styles}
+        <script>window.__RELAY_PAYLOADS__ = ${relayPayload};</script>
+      </head>
+
+      <body>
+        <div id="root">${app}</div>
+        ${cssHash}
+        ${js}
+      </body>
+
+    </html>`
 }
 
 export default ({ clientStats }) => async (ctx, next) => {
-  let title = ''
-  let meta = ''
-  let styleTags = ''
-  let relayPayload = null
-  let app = ''
 
   try {
-    //check if prefix is here
+
     if (process.env.ROUTE_PREFIX.length > 0 && !ctx.url.startsWith(process.env.ROUTE_PREFIX)){
       return next()
     }
 
-    const renderResult = await renderAsync(ctx)
+    var fetcher = new ServerFetcher(process.env.GRAPHQL_ENDPOINT)
+    var { redirect, status, element } = await getFarceResult({
+      url: ctx.url,
+      historyMiddlewares,
+      routeConfig: require(process.env.REACT_APP_PATH).default,
+      resolver: createResolver(fetcher),
+      render,
+    })
 
-    if (renderResult.status !== 200) return next()
+    var relayPayload = serialize(fetcher, { isJSON: true })
 
-    const helmet = renderResult.helmet
-    title = helmet && helmet.title && helmet.title.toString()
-    meta = helmet && helmet.meta && helmet.meta.toString()
-    styleTags = renderResult.styleTags
-    relayPayload = renderResult.relayPayload
-    app = renderResult.app
+    if (status !== 200) return next()
+
   } catch (err) {
     return next()
   }
 
-  const chunkNames = flushChunkNames()
-
-  const {
-    js,
-    scripts,
-  } = flushChunks(clientStats, { chunkNames })
-
   ctx.status = 200
-  ctx.body = renderHtml({ title, meta, styleTags, relayPayload, app, js })
+
+  // Use custom render function if passed
+  if ( typeof RENDER_HTML_FUNCTION !== 'undefined') 
+    ctx.body = RENDER_HTML_FUNCTION({ element, clientStats, relayPayload })
+  else
+    ctx.body = renderHtml({ element, clientStats, relayPayload })
 
   next()
 }
