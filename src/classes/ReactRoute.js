@@ -1,3 +1,4 @@
+import path from "path";
 import Webpack from "./Webpack";
 
 export default class ReactRoute {
