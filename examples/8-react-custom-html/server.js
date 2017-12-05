@@ -18,7 +18,7 @@ const route = server.addReactRoute(
 //
 // Adding a custom HTML
 //
-route.webpack.setHTML( ({ element, clientStats, relayPayload }) => {
+route.setHTML( ({ element, clientStats, relayPayload }) => {
   const ReactDOM = require('react-dom/server')
   const Helmet = require('react-helmet').default
   const flushChunks = require('webpack-flush-chunks').flushChunks
