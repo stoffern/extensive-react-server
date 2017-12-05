@@ -1,53 +1,58 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import winston from 'winston'
+import React from "react";
+import ReactDOM from "react-dom";
+import winston from "winston";
 
-import Server from './classes/Server';
-import Webpack from './classes/Webpack';
+import Server from "./classes/Server";
+import Webpack from "./classes/Webpack";
 
 module.exports = class ExtensiveReactServer {
   constructor(props) {
-    this.config = Object.assign({
-      environment: 'development',
-      hostname: 'localhost',
-      port: 3000,
+    this.config = Object.assign(
+      {
+        environment: "development",
+        hostname: "localhost",
+        port: 3000,
 
-      options:{
-        logToFile: false,
-        logFile: 'server.log',
+        options: {
+          logToFile: false,
+          logFile: "server.log",
 
-        logRequests: true, 
-        useJsonPretty: true, 
-        useEtags: false,
+          logRequests: true,
+          useJsonPretty: true,
+          useEtags: false,
 
-        useHelmet: true,
-        helmetOptions:{
-          noCache: true,
-          frameguard: {
-            action: 'deny'
+          useHelmet: true,
+          helmetOptions: {
+            noCache: true,
+            frameguard: {
+              action: "deny"
+            }
+          },
+          useCompress: true,
+          compressOptions: {
+            threshold: 2048
+          },
+
+          useDdos: true,
+          ddosOptions: {
+            burst: 10,
+            limit: 15
+          },
+
+          useCors: true,
+          corsOptions: {
+            origin: "*"
           }
-        },
-        useCompress: true,
-        compressOptions:{
-          threshold: 2048
-        },
+        }
+      },
+      props
+    );
 
-        useDdos: true,
-        ddosOptions: {
-          burst:10, 
-          limit:15
-        },
-
-        useCors: true,
-        corsOptions:{
-          origin: '*'
-        },
-      }
-    }, props);
-
-    let transports = [ new (winston.transports.Console)() ]
+    let transports = [new winston.transports.Console()];
     if (this.config.options.logToFile)
-      transports.push(new (winston.transports.File)({ filename: this.config.options.logFile }))
+      transports.push(
+        new winston.transports.File({ filename: this.config.options.logFile })
+      );
 
     this.logger = new winston.Logger({
       level: this.config.options.logLevel,
@@ -56,7 +61,7 @@ module.exports = class ExtensiveReactServer {
 
     this.server = new Server({}, this);
     this.webpack = new Webpack({}, this);
-    this.logger.info('[ExtServer] - Creating instance..')
+    this.logger.info("[ExtServer] - Creating instance..");
   }
 
   /**
@@ -70,32 +75,32 @@ module.exports = class ExtensiveReactServer {
    * Adds routes to the route config
    * @param {array} routes [route, route2, routefolder, routefolder3]
    */
-  addRouteFolder(routes){
-    this.server.router.addRouteFolder(route)
+  addRouteFolder(routes) {
+    this.server.router.addRouteFolder(route);
   }
 
   /**
    * Adds a route file or folder to the route config
    * @param {string} route path/to/route.js
    */
-  addRoute(route){
-    this.server.router.addRoute(route)
+  addRoute(route) {
+    this.server.router.addRoute(route);
   }
 
   /**
    * [description]
    * @param {[type]}
    */
-  addStaticFile(filePath, servePath){
-    this.server.router.addStaticFile(filePath, servePath)
+  addStaticFile(filePath, servePath) {
+    this.server.router.addStaticFile(filePath, servePath);
   }
 
   /**
    * [description]
    * @param {[type]}
    */
-  addStaticFolder(filePath, servePath){
-    this.server.router.addStaticFolder(filePath, servePath)
+  addStaticFolder(filePath, servePath) {
+    this.server.router.addStaticFolder(filePath, servePath);
   }
 
   /**
@@ -107,8 +112,21 @@ module.exports = class ExtensiveReactServer {
    * @param {object} options       [description]
    * @param {array} middleware    [description]
    */
-  addReactRoute(prefix, app, webpackClient = {}, webpackServer = {}, options ={}, middleware = []){
-    return this.server.addReactRoute(prefix, app, webpackClient, webpackServer, options, middleware)
+  addReactRoute(
+    prefix,
+    app,
+    webpackClient = {},
+    webpackServer = {},
+    options = {},
+    middleware = []
+  ) {
+    return this.server.addReactRoute(
+      prefix,
+      app,
+      webpackClient,
+      webpackServer,
+      options,
+      middleware
+    );
   }
-
-}
+};

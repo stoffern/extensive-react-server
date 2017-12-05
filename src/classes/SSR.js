@@ -1,13 +1,10 @@
 export default class SSR {
-
   constructor(props, parent) {
     this.parent = parent.parent;
   }
 
-  addRoute(prefix, app, options, middleware){
+  addRoute(prefix, app, options, middleware) {}
 
-  }
-  
   /**
    * Handle Koa Development middleware after compile is complete
    * @param  {webpackmiddleware} dev
@@ -18,7 +15,7 @@ export default class SSR {
     const waitMiddleware = () =>
       new Promise((resolve, reject) => {
         dev.waitUntilValid(() => resolve(true));
-        compiler.plugin('failed', error => reject(error));
+        compiler.plugin("failed", error => reject(error));
       });
 
     return async (ctx, next) => {
@@ -30,11 +27,10 @@ export default class SSR {
             ctx.body = content;
           },
           setHeader: ctx.set.bind(ctx),
-          locals: ctx.state,
+          locals: ctx.state
         },
         next
       );
     };
   }
-
 }
