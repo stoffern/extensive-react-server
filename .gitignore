@@ -60,6 +60,7 @@ typings/
 
 templates
 lib
+build
 ua.log
 example/ua.log
 example/build

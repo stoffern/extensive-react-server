@@ -433,6 +433,7 @@ export default class Webpack {
    * @return {[type]}            [description]
    */
   async compileWithCallback(callback) {
+    await this.compileVariables();
     await this.updateClientConfig({
       name: this.clientConfig.name + "-" + uuidv4()
     });

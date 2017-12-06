@@ -12,19 +12,19 @@ export default class ReactRoute {
     this.webpack.updateClientConfig(wpClientCfg);
     this.webpack.updateServerConfig(wpServerCfg);
 
-    if (prefix.length > 0) {
+    if (this.prefix.length > 0) {
       let publicPath = path.posix.join(
         "/",
-        prefix,
-        webpack.clientConfig.output.publicPath
+        this.prefix,
+        this.webpack.clientConfig.output.publicPath
       );
       this.webpack.updateClientConfig({ output: { publicPath: publicPath } });
     }
 
     this.webpack.addVariable({
       "process.env": {
-        REACT_APP_PATH: JSON.stringify(app),
-        ROUTE_PREFIX: JSON.stringify(path.posix.join("/", prefix))
+        REACT_APP_PATH: JSON.stringify(this.app),
+        ROUTE_PREFIX: JSON.stringify(path.posix.join("/", this.prefix))
       }
     });
   }
