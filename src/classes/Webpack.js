@@ -29,7 +29,7 @@ export default class Webpack {
     this.clientConfig = {
       name: "client",
       target: "web",
-      devtool: "source-map",
+      devtool: "eval",
       module: {
         rules: [
           {
@@ -104,11 +104,6 @@ export default class Webpack {
         publicPath: "/static/"
       },
       plugins: [
-        new webpack.optimize.CommonsChunkPlugin({
-          names: ["bootstrap"],
-          filename: "[name].js",
-          minChunks: Infinity
-        }),
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.DefinePlugin({
@@ -122,6 +117,7 @@ export default class Webpack {
 
   setClientConfigProd() {
     this.clientConfig = webpackMerge(true, this.clientConfig, {
+      devtool: "nosources-source-map",
       entry: path.resolve(
         process.cwd(),
         "node_modules/extensive-react-server/lib/utils/client-render"
@@ -133,11 +129,6 @@ export default class Webpack {
         publicPath: "/static/"
       },
       plugins: [
-        new webpack.optimize.CommonsChunkPlugin({
-          names: ["bootstrap"],
-          filename: "[name].[chunkhash].js",
-          minChunks: Infinity
-        }),
         new webpack.DefinePlugin({
           "process.env": {
             NODE_ENV: JSON.stringify("production")
