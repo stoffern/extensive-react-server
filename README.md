@@ -1,10 +1,10 @@
 # extensive-react-server
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/stoffern/extensive-react-server.svg)](https://greenkeeper.io/)
-[![Travis](https://img.shields.io/travis/stoffern/extensive-react-server.svg)](https://travis-ci.org/stoffern/extensive-react-server)
-[![npm](https://img.shields.io/npm/dt/extensive-react-server.svg)](https://www.npmjs.com/package/extensive-react-server)
-[![npm](https://img.shields.io/npm/v/extensive-react-server.svg)](https://www.npmjs.com/package/extensive-react-server)
-[![Coverage Status](https://coveralls.io/repos/github/stoffern/extensive-react-server/badge.svg?branch=master)](https://coveralls.io/github/stoffern/extensive-react-server?branch=master)
+[![Greenkeeper badge](https://badges.greenkeeper.io/stoffern/extensive-react-server.svg?style=flat-square)](https://greenkeeper.io/)
+[![Travis](https://img.shields.io/travis/stoffern/extensive-react-server.svg?style=flat-square)](https://travis-ci.org/stoffern/extensive-react-server)
+[![npm](https://img.shields.io/npm/dt/extensive-react-server.svg?style=flat-square)](https://www.npmjs.com/package/extensive-react-server)
+[![npm](https://img.shields.io/npm/v/extensive-react-server.svg?style=flat-square)](https://www.npmjs.com/package/extensive-react-server)
+[![Coverage Status](https://coveralls.io/repos/github/stoffern/extensive-react-server/badge.svg?style=flat-square&branch=master)](https://coveralls.io/github/stoffern/extensive-react-server?branch=master)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 
