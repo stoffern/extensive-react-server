@@ -59,6 +59,7 @@
     "graphql": "^0.11.7",
     "graphql-errors": "^2.1.0",
     "graphql-relay": "^0.5.2",
+    "happypack": "^4.0.0",
     "isomorphic-fetch": "^2.2.1",
     "kcors": "^2.2.1",
     "koa": "^2.3.0",
