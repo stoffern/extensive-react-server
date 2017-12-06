@@ -8,7 +8,7 @@ export default class ReactRoute {
     this.options = options;
     this.middleware = middleware;
 
-    this.webpack = new Webpack({ isDevMode: this.isDevMode }, this.parent);
+    this.webpack = new Webpack({ isDevMode: options.isDevMode }, this.parent);
     this.webpack.updateClientConfig(wpClientCfg);
     this.webpack.updateServerConfig(wpServerCfg);
 

@@ -34,6 +34,8 @@ export default class Server {
   }
 
   addReactRoute(prefix, app, wpClientCfg, wpServerCfg, options, middleware) {
+    Object.assign(options, { isDevMode: this.isDevMode });
+
     if (app.length == 0) {
       this.parent.logger.warn(
         "[Route] addReactRoute() - path to <App/> is missing"

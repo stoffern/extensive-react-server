@@ -5,7 +5,7 @@ import _ from "lodash";
 import webpack from "webpack";
 import uuidv4 from "uuid/v4";
 import webpackMerge from "webpack-merge";
-import Happypack from "happypack";
+import HappyPack from "happypack";
 
 export default class Webpack {
   constructor(props, parent) {
