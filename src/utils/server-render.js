@@ -12,7 +12,7 @@ import { createResolver, historyMiddlewares, render } from "./Router";
 const renderHtml = ({ element, clientStats, relayPayload }) => {
   const app = ReactDOM.renderToString(element);
 
-  const { js, styles, cssHash } = flushChunks(clientStats, {
+  const { js } = flushChunks(clientStats, {
     chunkNames: flushChunkNames()
   });
 
@@ -27,15 +27,14 @@ const renderHtml = ({ element, clientStats, relayPayload }) => {
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        ${title}
-        ${meta}
-        ${styles}
+        ${helmet.title.toString()}
+        ${helmet.meta.toString()}
+        ${helmet.link.toString()}
         <script>window.__RELAY_PAYLOADS__ = ${relayPayload};</script>
       </head>
 
-      <body>
+      <body ${helmet.bodyAttributes.toString()}>
         <div id="root">${app}</div>
-        ${cssHash}
         ${js}
       </body>
 
