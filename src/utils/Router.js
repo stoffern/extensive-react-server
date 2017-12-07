@@ -8,7 +8,7 @@ import { Environment, Network, RecordSource, Store } from "relay-runtime";
 import { ClientFetcher } from "./fetcher";
 
 const basenameMiddleware = createBasenameMiddleware({
-  basename: process.env.ROUTE_PREFIX
+  basename: process.env.REACT_ROUTE_PREFIX
 });
 
 export const historyMiddlewares = [queryMiddleware, basenameMiddleware];

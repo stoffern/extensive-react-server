@@ -22,10 +22,11 @@ export default class ReactRoute {
     }
 
     this.webpack.addVariable({
-      "process.env": {
-        REACT_APP_PATH: JSON.stringify(this.app),
-        ROUTE_PREFIX: JSON.stringify(path.posix.join("/", this.prefix))
-      }
+      NODE_ENV: JSON.stringify(
+        options.isDevMode ? "development" : "production"
+      ),
+      REACT_APP_PATH: JSON.stringify(this.app),
+      REACT_ROUTE_PREFIX: JSON.stringify(path.posix.join("/", this.prefix))
     });
   }
 
@@ -36,5 +37,14 @@ export default class ReactRoute {
       );
     }
     this.webpack.addVariable({ RENDER_HTML_FUNCTION: fn });
+  }
+
+  async setGraphqlEnpoint(endpoint) {
+    if (!typeof endpoint === "string") {
+      this.parent.logger.warn(
+        "[Webpack] setGraphqlEnpoint(function) - You must pass a string"
+      );
+    }
+    this.webpack.addVariable({ GRAPHQL_ENDPOINT: JSON.stringify(endpoint) });
   }
 }

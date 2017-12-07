@@ -12,7 +12,7 @@ export default class Webpack {
     this.parent = parent;
     this.compileConfigs = [];
 
-    this.variables = [];
+    this.variables = {};
 
     this.externals = [];
     let modulesPath = path.resolve(process.cwd(), "node_modules");
@@ -105,12 +105,7 @@ export default class Webpack {
           ]
         }),
         new webpack.HotModuleReplacementPlugin(),
-        new webpack.NoEmitOnErrorsPlugin(),
-        new webpack.DefinePlugin({
-          "process.env": {
-            NODE_ENV: JSON.stringify("development")
-          }
-        })
+        new webpack.NoEmitOnErrorsPlugin()
       ]
     });
   }
@@ -139,11 +134,6 @@ export default class Webpack {
               }
             }
           ]
-        }),
-        new webpack.DefinePlugin({
-          "process.env": {
-            NODE_ENV: JSON.stringify("production")
-          }
         }),
         new webpack.optimize.UglifyJsPlugin({
           compress: {
@@ -187,11 +177,6 @@ export default class Webpack {
         }),
         new webpack.optimize.LimitChunkCountPlugin({
           maxChunks: 1
-        }),
-        new webpack.DefinePlugin({
-          "process.env": {
-            NODE_ENV: JSON.stringify("development")
-          }
         })
       ]
     });
@@ -220,11 +205,6 @@ export default class Webpack {
         }),
         new webpack.optimize.LimitChunkCountPlugin({
           maxChunks: 1
-        }),
-        new webpack.DefinePlugin({
-          "process.env": {
-            NODE_ENV: JSON.stringify("production")
-          }
         })
       ]
     });
@@ -395,7 +375,7 @@ export default class Webpack {
         "[Webpack] addVariable(object) - You must pass a object"
       );
     }
-    this.variables = Object.assign(this.variables, obj);
+    Object.assign(this.variables, obj);
   }
 
   /**
@@ -418,19 +398,14 @@ export default class Webpack {
     );
   }
 
-  async setGraphqlEnpoint(endpoint) {
-    if (!typeof fn === "string") {
-      this.parent.logger.warn(
-        "[Webpack] setGraphqlEnpoint(function) - You must pass a string"
-      );
-    }
-    this.addVariable({ GRAPHQL_ENDPOINT: endpoint });
-  }
-
   async compileVariables() {
+    let variables = {
+      "process.env": this.variables
+    };
+    console.log(variables);
     this.updateConfigWithStrategy(
       { plugins: "append" },
-      { plugins: [new webpack.DefinePlugin(this.variables)] }
+      { plugins: [new webpack.DefinePlugin(variables)] }
     );
   }
 

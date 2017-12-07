@@ -44,8 +44,8 @@ const renderHtml = ({ element, clientStats, relayPayload }) => {
 export default ({ clientStats }) => async (ctx, next) => {
   try {
     if (
-      process.env.ROUTE_PREFIX.length > 0 &&
-      !ctx.url.startsWith(process.env.ROUTE_PREFIX)
+      process.env.REACT_ROUTE_PREFIX.length > 0 &&
+      !ctx.url.startsWith(process.env.REACT_ROUTE_PREFIX)
     ) {
       return next();
     }
@@ -59,7 +59,9 @@ export default ({ clientStats }) => async (ctx, next) => {
       render
     });
 
-    var relayPayload = serialize(fetcher, { isJSON: true });
+    if (process.env.GRAPHQL_ENDPOINT !== undefined)
+      var relayPayload = serialize(fetcher, { isJSON: true });
+    else var relayPayload = null;
 
     if (status !== 200) return next();
   } catch (err) {
