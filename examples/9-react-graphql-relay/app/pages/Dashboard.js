@@ -2,10 +2,8 @@ import React, { Component } from "react";
 
 export default class Dashboard extends Component {
   render() {
-    console.log();
     return (
       <div>
-        Hei<br />
         {this.props.projects.map(project => (
           <div style={{ marginBottom: "20px" }}>
             <h3>Name: {project.name}</h3>

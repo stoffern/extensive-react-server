@@ -21,7 +21,7 @@ const renderHtml = ({ element, clientStats, relayPayload }) => {
   let meta = helmet && helmet.meta && helmet.meta.toString();
 
   return `
-    <!doctype html>
+    <!DOCTYPE html>
     <html>
 
       <head>

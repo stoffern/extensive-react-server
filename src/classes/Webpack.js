@@ -402,7 +402,6 @@ export default class Webpack {
     let variables = {
       "process.env": this.variables
     };
-    console.log(variables);
     this.updateConfigWithStrategy(
       { plugins: "append" },
       { plugins: [new webpack.DefinePlugin(variables)] }

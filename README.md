@@ -31,29 +31,7 @@ $ yarn add extensive-react-server
 ```
 
 ## Getting started
-Create a awsome react app `app/Routes.js`: 
-```js
-import makeRouteConfig from "found/lib/makeRouteConfig";
-
-export default makeRouteConfig(
-  <Route
-    path="/"
-    Component={() => <div>Main</div>)}
-  >
-    <Route
-      path="cool"
-      Component={() => <div>Cool</div>} 
-    />
-    <Route
-      path="foo"
-      Component={() => <div>Foo</div>} 
-    />
-    <Redirect
-      from="baz"
-      to="/foo" />
-  </Route>
-);
-```
+Create a awsome react app `app/Routes.js` with [found](https://github.com/4Catalyzer/found) routing/navigation
 Remember you must return a found `makeRouteConfig`.
 
 Create a new file `server.js` with contents:
@@ -83,10 +61,8 @@ Create a `.babelrc` file for your needs:
 ```js
 {
   "presets": [
-    "env",
     "react",
-    "stage-0",
-    "stage-2"
+    "stage-0"
   ],
   "plugins": [
     "transform-runtime"
@@ -126,10 +102,10 @@ Good luck!
 - [x] Add support for multiple React apps with serverside render (SSR)
 - [ ] Allow middleware for react paths (example: authentication)
 - [ ] Add support for Passport
-- [ ] Add support for Relay
+- [x] Add support for Relay
 - [x] Add support for custom index.html file for SSR
 - [x] Create examples
-- [ ] Better documentation
+- [x] Better documentation
 
 
 ## Thanks to:
