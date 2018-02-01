@@ -26,7 +26,7 @@
     "jest": "^22.0.0",
     "lint-staged": "^6.0.0",
     "prettier": "1.10.0",
-    "semantic-release": "^11.0.2"
+    "semantic-release": "^12.2.2"
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
