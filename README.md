@@ -1,20 +1,24 @@
-# extensive-react-server
+# velop-server
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/stoffern/extensive-react-server.svg?style=flat-square)](https://greenkeeper.io/)
-[![Travis](https://img.shields.io/travis/stoffern/extensive-react-server.svg?style=flat-square)](https://travis-ci.org/stoffern/extensive-react-server)
-[![npm](https://img.shields.io/npm/dt/extensive-react-server.svg?style=flat-square)](https://www.npmjs.com/package/extensive-react-server)
-[![npm](https://img.shields.io/npm/v/extensive-react-server.svg?style=flat-square)](https://www.npmjs.com/package/extensive-react-server)
-[![Coverage Status](https://coveralls.io/repos/github/stoffern/extensive-react-server/badge.svg?style=flat-square&branch=master)](https://coveralls.io/github/stoffern/extensive-react-server?branch=master)
+[![Greenkeeper badge](https://badges.greenkeeper.io/velop-io/server.svg?style=flat-square)](https://greenkeeper.io/)
+[![Travis](https://img.shields.io/travis/velop-io/server.svg?style=flat-square)](https://travis-ci.org/velop-io/server)
+[![npm](https://img.shields.io/npm/dt/server.svg?style=flat-square)](https://www.npmjs.com/package/server)
+[![npm](https://img.shields.io/npm/v/server.svg?style=flat-square)](https://www.npmjs.com/package/server)
+[![Coverage Status](https://coveralls.io/repos/github/velop-io/server/badge.svg?style=flat-square&branch=master)](https://coveralls.io/github/velop-io/server?branch=master)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 
-Extensible server for hosting a React universal apps(Isomorpic). Host one or more apps, with or without authentication. Supports: [Graphql](https://github.com/facebook/graphql), [Relay](https://github.com/facebook/relay), [Passport](https://github.com/jaredhanson/passport), Webpack, HotReloading, custom webpack configs for every route, custom routes ++
+__Serve one or more React apps with one simple call.__ _Supports [Universal rendering](https://frontendmasters.com/courses/react-intro/what-is-universal-rendering/), [Webpack](https://webpack.js.org/), [HotReloading](https://webpack.js.org/concepts/hot-module-replacement/), [Relay](https://github.com/facebook/relay), [Passport](https://github.com/jaredhanson/passport), [FoundRouter](https://github.com/4Catalyzer/found), [Graphql](https://github.com/facebook/graphql) out of the box!
+Fully editable setup with a simple set of functions and commands.
+You can also add custom routes or static paths at your needs.
+Even add a authentication layer on top of the routes or apps you what!
+All this is possible with a simple set of functions._
 
 ## Why?
-Boilerplates, startup-kits, setup server, webpack, hot reloading +++ its a jungle!!
+___This is not a standardization nor a boilerplate or startupkit.___ _This is a engine that can serve the js for you in the way you want. A developer should not put resources into setting up core server, only provide details of what they want to serve and how to do it. The rest will @velop/server take care of!_
 
-`extensive-react-server` has support for everything out of the box, and you can get up and running with 3 lines of code.
-
+## Why not Next.js?
+NextJS is a great tool for creating a boilerplate setup that you can edit for your needs. Full cretid to [Zeit](https://github.com/zeit) for some awesome work! __But it has some core problems like [serving multiple apps](https://github.com/zeit/next.js/issues/257), [custom static folders](https://github.com/zeit/next.js/issues/3027), [authentication to routes](https://github.com/zeit/next.js/issues/153), or just serving other then react apps.__ @velop/server aims to solve these problems and with a more simple solution. Calling functions and not configuring files.
 
 ## Table of Contents
 - [Installation](#installation)
@@ -25,9 +29,9 @@ Boilerplates, startup-kits, setup server, webpack, hot reloading +++ its a jungl
 
 ## Installation
 ```js
-$ npm i -S extensive-react-server
+$ npm i -S @velop/server
 or
-$ yarn add extensive-react-server
+$ yarn add @velop/server
 ```
 
 ## Getting started
@@ -36,9 +40,9 @@ Remember you must return a found `makeRouteConfig`.
 
 Create a new file `server.js` with contents:
 ```js
-const ExtensiveReactServer = require('extensive-react-server')
+const Server = require('@velop/server')
 
-var server = new ExtensiveReactServer({
+var server = new Server({
   environment: 'development',
   hostname: 'localhost',
   port: 3000,
