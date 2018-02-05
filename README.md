@@ -2,8 +2,8 @@
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/velop-io/server.svg?style=flat-square)](https://greenkeeper.io/)
 [![Travis](https://img.shields.io/travis/velop-io/server.svg?style=flat-square)](https://travis-ci.org/velop-io/server)
-[![npm](https://img.shields.io/npm/dt/%40velop-pkg%2Fserver.svg?style=flat-square)](https://www.npmjs.com/package/server)
-[![npm](https://img.shields.io/npm/v/%40velop-pkg%2Fserver.svg?style=flat-square)](https://www.npmjs.com/package/server)
+[![npm](https://img.shields.io/npm/dt/%40velop-pkg%2Fserver.svg?style=flat-square)](https://www.npmjs.com/package/%40velop-pkg%2Fserver)
+[![npm](https://img.shields.io/npm/v/%40velop-pkg%2Fserver.svg?style=flat-square)](https://www.npmjs.com/package/%40velop-pkg%2Fserver)
 [![Coverage Status](https://coveralls.io/repos/github/velop-io/server/badge.svg?style=flat-square&branch=master)](https://coveralls.io/github/velop-io/server?branch=master)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 

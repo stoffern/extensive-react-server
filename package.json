@@ -1,6 +1,6 @@
 {
   "name": "@velop-pkg/server",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description":
     "Serve one or more react apps! - Custom routes, HotReloading, Authenticated Apps/routes, Relay, Webpack ++",
   "main": "lib/index.js",
