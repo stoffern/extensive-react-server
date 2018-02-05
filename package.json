@@ -1,7 +1,8 @@
 {
-  "name": "extensive-react-server",
-  "version": "0.0.0-development",
-  "description": "extensive-react-server",
+  "name": "@velop-pkg/server",
+  "version": "0.0.1",
+  "description":
+    "Serve one or more react apps! - Custom routes, HotReloading, Authenticated Apps/routes, Relay, Webpack ++",
   "main": "lib/index.js",
   "scripts": {
     "test": "jest",
@@ -13,19 +14,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/stoffern/extensive-react-server.git"
+    "url": "https://github.com/velop-io/server.git"
   },
   "author": "stoffern",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/stoffern/extensive-react-server/issues"
+    "url": "https://github.com/velop-io/server/issues"
   },
-  "homepage": "https://github.com/stoffern/extensive-react-server#readme",
+  "homepage": "https://github.com/velop-io/server#readme",
   "devDependencies": {
     "husky": "^0.14.3",
     "jest": "^22.0.0",
     "lint-staged": "^6.0.0",
-    "prettier": "1.10.0",
+    "prettier": "1.10.2",
     "semantic-release": "^12.2.2"
   },
   "dependencies": {
@@ -47,8 +48,8 @@
     "babel-runtime": "^6.23.0",
     "cz-conventional-changelog": "^2.1.0",
     "ddos": "^0.1.25",
-    "dotenv": "^4.0.0",
-    "eslint": "4.15.0",
+    "dotenv": "^5.0.0",
+    "eslint": "4.17.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-loader": "^1.7.1",
     "eslint-plugin-import": "^2.3.0",
