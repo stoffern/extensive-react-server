@@ -2,8 +2,8 @@
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/velop-io/server.svg?style=flat-square)](https://greenkeeper.io/)
 [![Travis](https://img.shields.io/travis/velop-io/server.svg?style=flat-square)](https://travis-ci.org/velop-io/server)
-[![npm](https://img.shields.io/npm/dt/server.svg?style=flat-square)](https://www.npmjs.com/package/server)
-[![npm](https://img.shields.io/npm/v/server.svg?style=flat-square)](https://www.npmjs.com/package/server)
+[![npm](https://img.shields.io/npm/dt/@velop-pkg/server.svg?style=flat-square)](https://www.npmjs.com/package/server)
+[![npm](https://img.shields.io/npm/v/@velop-pkg/server.svg?style=flat-square)](https://www.npmjs.com/package/server)
 [![Coverage Status](https://coveralls.io/repos/github/velop-io/server/badge.svg?style=flat-square&branch=master)](https://coveralls.io/github/velop-io/server?branch=master)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
@@ -29,9 +29,9 @@ NextJS is a great tool for creating a boilerplate setup that you can edit for yo
 
 ## Installation
 ```js
-$ npm i -S @velop/server
+$ npm i -S @velop-pkg/server
 or
-$ yarn add @velop/server
+$ yarn add @velop-pkg/server
 ```
 
 ## Getting started
@@ -40,7 +40,7 @@ Remember you must return a found `makeRouteConfig`.
 
 Create a new file `server.js` with contents:
 ```js
-const Server = require('@velop/server')
+const Server = require('@velop-pkg/server')
 
 var server = new Server({
   environment: 'development',
