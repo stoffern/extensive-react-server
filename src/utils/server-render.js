@@ -5,6 +5,7 @@ import { getFarceResult } from "found/lib/server";
 import RedirectException from "found/lib/RedirectException";
 import serialize from "serialize-javascript";
 import { Helmet } from "react-helmet";
+import passport from "koa-passport";
 
 import { ServerFetcher } from "./fetcher";
 import { createResolver, historyMiddlewares, render } from "./Router";
@@ -41,8 +42,12 @@ const renderHtml = ({ element, clientStats, relayPayload }) => {
     </html>`;
 };
 
-export default ({ clientStats }) => async (ctx, next) => {
+export default ({ clientStats, authenticationMW, middleware }) => async (
+  ctx,
+  next
+) => {
   try {
+    //Set prefix
     if (
       process.env.REACT_ROUTE_PREFIX.length > 0 &&
       !ctx.url.startsWith(process.env.REACT_ROUTE_PREFIX)
@@ -50,6 +55,7 @@ export default ({ clientStats }) => async (ctx, next) => {
       return next();
     }
 
+    //Setup GraphQL config
     var fetcher = new ServerFetcher(process.env.GRAPHQL_ENDPOINT);
     var { redirect, status, element } = await getFarceResult({
       url: ctx.url,
@@ -59,11 +65,24 @@ export default ({ clientStats }) => async (ctx, next) => {
       render
     });
 
+    //return if not found
+    if (status !== 200) return next();
+
+    console.log(passport._strategies);
+
+    //Run authentication
+    if (authenticationMW.length > 0) {
+      passport.authenticate("basic", function(err, user, info) {
+        console.log(err);
+        console.log(user);
+        console.log(info);
+      })(ctx, next);
+    }
+
+    //Serialize Relay payload
     if (process.env.GRAPHQL_ENDPOINT !== undefined)
       var relayPayload = serialize(fetcher, { isJSON: true });
     else var relayPayload = null;
-
-    if (status !== 200) return next();
   } catch (err) {
     return next();
   }

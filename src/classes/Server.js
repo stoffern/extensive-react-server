@@ -3,6 +3,8 @@ import fs from "fs";
 import compress from "koa-compress";
 import conditional from "koa-conditional-get";
 import cors from "kcors";
+import bodyParser from "koa-bodyparser";
+import session from "koa-session";
 import etags from "koa-etag";
 import helmet from "koa-helmet";
 import json from "koa-json";
@@ -12,10 +14,12 @@ import logger from "koa-logger";
 import path from "path";
 import webpack from "webpack";
 import Ddos from "ddos";
+import passport from "koa-passport";
 
 import Router from "./Router";
 import Webpack from "./Webpack";
 import ReactRoute from "./ReactRoute";
+import PassportHandler from "./PassportHandler";
 
 //
 //Handle main Koa2 and webpack for app.
@@ -26,6 +30,7 @@ export default class Server {
     this.logger = parent.logger;
     this.app = new koa();
     this.router = new Router({}, this);
+    this.passport = new PassportHandler({}, this);
 
     this.isRunning = false;
     this.SSRRoutes = [];
@@ -38,14 +43,14 @@ export default class Server {
 
     if (app.length == 0) {
       this.parent.logger.warn(
-        "[Route] addReactRoute() - path to <App/> is missing"
+        "[VelopServer][Route] addReactRoute() - path to <App/> is missing"
       );
       return;
     }
 
     if (!fs.lstatSync(app).isFile()) {
       this.parent.logger.warn(
-        "[Route] addReactRoute() - path to <App/> does not exist"
+        "[VelopServer][Route] addReactRoute() - path to <App/> does not exist"
       );
       return;
     }
@@ -71,6 +76,7 @@ export default class Server {
 
       await this.SSRRoutes.map(async routeObject => {
         const compiledConfigs = await routeObject.webpack.compile();
+        console.log(passport._strategies);
         await this.app.use(
           this.koaDevware(
             webpackDevMiddleware(compiledConfigs, {
@@ -84,18 +90,24 @@ export default class Server {
             })
           )
         );
+
         await this.app.use(
           koaConvert(webpackHotMiddleware(compiledConfigs.compilers[0]))
         );
+
         await this.app.use(
           webpackHotServerMiddleware(compiledConfigs, {
-            createHandler: webpackHotServerMiddleware.createKoaHandler
+            createHandler: webpackHotServerMiddleware.createKoaHandler,
+            serverRendererOptions: {
+              authenticationMW: routeObject.authenticationMW,
+              middleware: routeObject.middleware
+            }
           })
         );
       });
     } else {
       this.parent.logger.info(
-        "[Compile] Getting files ready, this may take a while...."
+        "[VelopServer][Compile] Getting files ready, this may take a while...."
       );
       let routes = await this.SSRRoutes.map(
         routeObject =>
@@ -151,8 +163,13 @@ export default class Server {
   async start() {
     try {
       if (this.isDevMode)
-        this.parent.logger.info("[Start] Running in development mode!");
-      else this.parent.logger.info("[Start] Running in production mode!");
+        this.parent.logger.info(
+          "[VelopServer][Start] Running in development mode!"
+        );
+      else
+        this.parent.logger.info(
+          "[VelopServer][Start] Running in production mode!"
+        );
 
       if (
         this.parent.config.environment == "development" &&
@@ -162,12 +179,12 @@ export default class Server {
         this.app.use(logger());
 
       await this.addKoaMiddleware();
+      this.passport.initStrategies();
 
       if (this.SSRRoutes.length > 0) await this.renderReactApps();
-
       this.startListen();
     } catch (e) {
-      this.parent.logger.error("Server start(): " + e);
+      this.parent.logger.error("[VelopServer] Server start(): " + e);
     }
   }
 
@@ -251,5 +268,17 @@ export default class Server {
       this.app.use(conditional());
       this.app.use(etags());
     }
+
+    if (this.parent.config.options.session.use == true) {
+      if (this.parent.config.options.session.key == "secret")
+        this.parent.logger.warn(
+          "[VelopServer][Session] - YOU HAVE NOT SET A SESSION KEY, THIS CAN BE A SECURITY RISK"
+        );
+
+      this.app.keys = [this.parent.config.options.session.key];
+      this.app.use(session({}, this.app));
+    }
+
+    this.app.use(bodyParser());
   }
 }

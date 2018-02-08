@@ -7,6 +7,7 @@ export default class ReactRoute {
     this.app = app;
     this.options = options;
     this.middleware = middleware;
+    this.authenticationMW = [];
 
     this.webpack = new Webpack({ isDevMode: options.isDevMode }, this.parent);
     this.webpack.updateClientConfig(wpClientCfg);
@@ -46,5 +47,9 @@ export default class ReactRoute {
       );
     }
     this.webpack.addVariable({ GRAPHQL_ENDPOINT: JSON.stringify(endpoint) });
+  }
+
+  addAuthentication(auth) {
+    this.authenticationMW.push(auth);
   }
 }
