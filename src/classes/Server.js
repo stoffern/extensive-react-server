@@ -76,7 +76,7 @@ export default class Server {
 
       await this.SSRRoutes.map(async routeObject => {
         const compiledConfigs = await routeObject.webpack.compile();
-        console.log(passport._strategies);
+
         await this.app.use(
           this.koaDevware(
             webpackDevMiddleware(compiledConfigs, {
@@ -99,7 +99,8 @@ export default class Server {
           webpackHotServerMiddleware(compiledConfigs, {
             createHandler: webpackHotServerMiddleware.createKoaHandler,
             serverRendererOptions: {
-              authenticationMW: routeObject.authenticationMW,
+              passport: passport,
+              authMiddleware: routeObject.authMiddleware,
               middleware: routeObject.middleware
             }
           })
@@ -109,10 +110,13 @@ export default class Server {
       this.parent.logger.info(
         "[VelopServer][Compile] Getting files ready, this may take a while...."
       );
+
+      //Render React Routes
       let routes = await this.SSRRoutes.map(
         routeObject =>
           new Promise((resolve, reject) => {
             const { clientConfig, serverConfig } = routeObject.webpack;
+            const { authMiddleware } = routeObject;
 
             routeObject.webpack.compileWithCallback((err, stats) => {
               //host static files and files only
@@ -121,6 +125,7 @@ export default class Server {
                   clientConfig.output.publicPath,
                   asset.name
                 );
+
                 this.app.use(async (ctx, next) => {
                   if (ctx.path == publicPath) {
                     await send(ctx, asset.name, {
@@ -146,8 +151,12 @@ export default class Server {
               let serverRender = require(path.resolve(
                 serverConfig.output.path,
                 serverFile
-              )).default;
-              this.app.use(serverRender({ clientStats }));
+              ));
+
+              this.app.use(
+                serverRender({ clientStats, authMiddleware, passport })
+              );
+
               resolve();
             });
           })

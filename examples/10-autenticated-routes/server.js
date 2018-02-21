@@ -3,7 +3,7 @@ const Server = require("../../src");
 const { BasicStrategy, DigestStrategy } = require("passport-http");
 
 var server = new Server({
-  environment: "development"
+  environment: "production"
 });
 
 server.addPassportStrategy(
@@ -11,12 +11,6 @@ server.addPassportStrategy(
     if (username == "test" && password == "tester")
       done(null, { username: username, password: password });
     else done(null, false);
-  })
-);
-
-server.addPassportStrategy(
-  new DigestStrategy({ qop: "auth" }, (username, done) => {
-    return done(null, username, "test");
   })
 );
 
@@ -33,6 +27,22 @@ const route = server.addReactRoute(
   { entry: path.resolve(process.cwd(), "../../src/utils/server-render") } // YOU DONT NEED THIS (ONLY IN USE FOR THIS EXAMPLE TO RUN)
 );
 
-route.addAuthentication(passport => passport.authenticate("basic"));
+route.addAuthentication((passport, ctx, next) => {
+  console.log("auth");
+  console.log(passport);
+  console.log(ctx);
+
+  passport.authenticate("basic", (err, user, info) => {
+    console.log("auth2");
+    console.log(user);
+    if (user) ctx.login(user);
+    else ctx.logout();
+  })(ctx, next);
+
+  if (!ctx.isAuthenticated()) {
+    ctx.status = 404;
+    ctx.body = "USER NOT FOUND";
+  }
+});
 
 server.start();

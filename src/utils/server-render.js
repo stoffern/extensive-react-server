@@ -5,7 +5,6 @@ import { getFarceResult } from "found/lib/server";
 import RedirectException from "found/lib/RedirectException";
 import serialize from "serialize-javascript";
 import { Helmet } from "react-helmet";
-import passport from "koa-passport";
 
 import { ServerFetcher } from "./fetcher";
 import { createResolver, historyMiddlewares, render } from "./Router";
@@ -42,7 +41,7 @@ const renderHtml = ({ element, clientStats, relayPayload }) => {
     </html>`;
 };
 
-export default ({ clientStats, authenticationMW, middleware }) => async (
+module.exports = ({ clientStats, authMiddleware, passport }) => async (
   ctx,
   next
 ) => {
@@ -65,19 +64,14 @@ export default ({ clientStats, authenticationMW, middleware }) => async (
       render
     });
 
+    //Run authentication
+    if (authMiddleware) {
+      let res = await authMiddleware(passport, ctx, next);
+      if (!ctx.isAuthenticated()) return next();
+    }
+
     //return if not found
     if (status !== 200) return next();
-
-    console.log(passport._strategies);
-
-    //Run authentication
-    if (authenticationMW.length > 0) {
-      passport.authenticate("basic", function(err, user, info) {
-        console.log(err);
-        console.log(user);
-        console.log(info);
-      })(ctx, next);
-    }
 
     //Serialize Relay payload
     if (process.env.GRAPHQL_ENDPOINT !== undefined)

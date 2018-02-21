@@ -7,7 +7,7 @@ export default class ReactRoute {
     this.app = app;
     this.options = options;
     this.middleware = middleware;
-    this.authenticationMW = [];
+    this.authMiddleware = null;
 
     this.webpack = new Webpack({ isDevMode: options.isDevMode }, this.parent);
     this.webpack.updateClientConfig(wpClientCfg);
@@ -50,6 +50,6 @@ export default class ReactRoute {
   }
 
   addAuthentication(auth) {
-    this.authenticationMW.push(auth);
+    this.authMiddleware = auth;
   }
 }
