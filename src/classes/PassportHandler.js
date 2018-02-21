@@ -9,8 +9,10 @@ export default class PassportHandler {
 
   initStrategies() {
     if (this.strategies.length > 0) {
-      console.log(
-        "Initialize " + this.strategies.length + " passport strategies"
+      this.parent.parent.logger.info(
+        "[VelopServer][Passport] Initialize " +
+          this.strategies.length +
+          " passport strategies"
       );
 
       this.parent.app.use(passport.initialize());

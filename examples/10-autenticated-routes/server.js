@@ -28,13 +28,7 @@ const route = server.addReactRoute(
 );
 
 route.addAuthentication((passport, ctx, next) => {
-  console.log("auth");
-  console.log(passport);
-  console.log(ctx);
-
   passport.authenticate("basic", (err, user, info) => {
-    console.log("auth2");
-    console.log(user);
     if (user) ctx.login(user);
     else ctx.logout();
   })(ctx, next);

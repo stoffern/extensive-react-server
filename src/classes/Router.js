@@ -19,7 +19,7 @@ export default class Router {
   async addRouteFolder(routeArray) {
     if (!routeArray.isArray()) {
       this.parent.logger.warn(
-        "[Route] addRouteFolder() - the function should contain a array!"
+        "[VelopServer][Route] addRouteFolder() - the function should contain a array!"
       );
       return;
     }
@@ -29,7 +29,7 @@ export default class Router {
   async addStaticFile(filePath, servePath = "") {
     if (!filePath || filePath.length == 0) {
       this.parent.logger.warn(
-        "[Router] addStaticFile() - called without a valid file/string."
+        "[VelopServer][Router] addStaticFile() - called without a valid file/string."
       );
       return;
     }
@@ -38,7 +38,9 @@ export default class Router {
       let isFile = fs.lstatSync(filePath).isFile();
       if (!isFile) {
         this.parent.logger.warn(
-          "[Router] addStaticFile() - path:" + filePath + " - is not a file"
+          "[VelopServer][Router] addStaticFile() - path:" +
+            filePath +
+            " - is not a file"
         );
         return;
       } else {
@@ -57,7 +59,7 @@ export default class Router {
         });
       }
     } catch (e) {
-      this.parent.logger.warn("[Router] addStaticFile()");
+      this.parent.logger.warn("[VelopServer][Router] addStaticFile()");
       this.parent.logger.warn(e);
     }
   }
@@ -65,7 +67,7 @@ export default class Router {
   async addStaticFolder(filePath, servePath) {
     if (!filePath || filePath.length == 0) {
       this.parent.logger.warn(
-        "[Router] addStaticFolder() - called without a valid file/string."
+        "[VelopServer][Router] addStaticFolder() - called without a valid file/string."
       );
       return;
     }
@@ -75,7 +77,9 @@ export default class Router {
       let isDirectory = fs.lstatSync(filePath).isDirectory();
       if (!isFile && !isDirectory) {
         this.parent.logger.warn(
-          "[Route] addStaticFolder() - path:" + filePath + " - does not exist"
+          "[VelopServer][Route] addStaticFolder() - path:" +
+            filePath +
+            " - does not exist"
         );
         return;
       } else {
@@ -85,11 +89,10 @@ export default class Router {
           this.parent.app.use(
             KoaStatic({ rootDir: filePath, rootPath: servePath })
           );
-          //host folder
         }
       }
     } catch (e) {
-      this.parent.logger.warn("[Router] addStaticFile()");
+      this.parent.logger.warn("[VelopServer][Router] addStaticFile()");
       this.parent.logger.warn(e);
     }
   }
@@ -97,7 +100,7 @@ export default class Router {
   async addRoute(route) {
     if (!route || route.length == 0) {
       this.parent.logger.warn(
-        "[Route] addRoute() - called without a valid file/string."
+        "[VelopServer][Route] addRoute() - called without a valid file/string."
       );
       return;
     }
@@ -107,7 +110,9 @@ export default class Router {
       let isDirectory = fs.lstatSync(route).isDirectory();
       if (!isFile && !isDirectory) {
         this.parent.logger.warn(
-          "[Route] addRoute() - path:" + route + " - does not exist"
+          "[VelopServer][Route] addRoute() - path:" +
+            route +
+            " - does not exist"
         );
         return;
       } else {
@@ -119,7 +124,9 @@ export default class Router {
         }
       }
     } catch (e) {
-      this.parent.logger.warn("[Route] addRoutesFolderOrFile() - " + e);
+      this.parent.logger.warn(
+        "[VelopServer][Route] addRoutesFolderOrFile() - " + e
+      );
     }
   }
 }

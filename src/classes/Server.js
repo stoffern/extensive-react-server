@@ -202,7 +202,7 @@ export default class Server {
    */
   startListen() {
     this.parent.logger.info(
-      "Starting server on http://%s:%s <===",
+      "[VelopServer] Starting server on http://%s:%s <===",
       this.parent.config.hostname,
       this.parent.config.port
     );
@@ -217,7 +217,7 @@ export default class Server {
       this.app.listen(this.parent.config.port, () => {
         this.parent.logger.info();
         this.parent.logger.info(
-          "==> Server is up at http://%s:%s <===",
+          "[VelopServer] ==> Server is up at http://%s:%s <===",
           this.parent.config.hostname,
           this.parent.config.port
         );
