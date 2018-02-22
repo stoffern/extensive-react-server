@@ -132,7 +132,7 @@ module.exports = class ExtensiveReactServer {
     options = {},
     middleware = []
   ) {
-    return this.server.addReactRoute(
+    return this.server.router.addReactRoute(
       prefix,
       app,
       webpackClient,

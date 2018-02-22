@@ -1,4 +1,4 @@
-import koa from "koa";
+import Koa from "koa";
 import fs from "fs";
 import compress from "koa-compress";
 import conditional from "koa-conditional-get";
@@ -18,7 +18,6 @@ import passport from "koa-passport";
 
 import Router from "./Router";
 import Webpack from "./Webpack";
-import ReactRoute from "./ReactRoute";
 import PassportHandler from "./PassportHandler";
 
 //
@@ -28,44 +27,13 @@ export default class Server {
   constructor(props, parent) {
     this.parent = parent;
     this.logger = parent.logger;
-    this.app = new koa();
+    this.app = new Koa();
     this.router = new Router({}, this);
     this.passport = new PassportHandler({}, this);
 
     this.isRunning = false;
-    this.SSRRoutes = [];
     this.isDevMode =
       this.parent.config.environment == "development" ? true : false;
-  }
-
-  addReactRoute(prefix, app, wpClientCfg, wpServerCfg, options, middleware) {
-    Object.assign(options, { isDevMode: this.isDevMode });
-
-    if (app.length == 0) {
-      this.parent.logger.warn(
-        "[VelopServer][Route] addReactRoute() - path to <App/> is missing"
-      );
-      return;
-    }
-
-    if (!fs.lstatSync(app).isFile()) {
-      this.parent.logger.warn(
-        "[VelopServer][Route] addReactRoute() - path to <App/> does not exist"
-      );
-      return;
-    }
-
-    let route = new ReactRoute(
-      prefix,
-      app,
-      wpClientCfg,
-      wpServerCfg,
-      options,
-      middleware
-    );
-
-    this.SSRRoutes.push(route);
-    return this.SSRRoutes[this.SSRRoutes.length - 1];
   }
 
   async renderReactApps() {
@@ -74,7 +42,7 @@ export default class Server {
       const webpackHotMiddleware = require("koa-webpack-hot-middleware");
       const webpackHotServerMiddleware = require("webpack-hot-server-middleware");
 
-      await this.SSRRoutes.map(async routeObject => {
+      await this.router.ReactRoutes.map(async routeObject => {
         const compiledConfigs = await routeObject.webpack.compile();
 
         await this.app.use(
@@ -112,7 +80,7 @@ export default class Server {
       );
 
       //Render React Routes
-      let routes = await this.SSRRoutes.map(
+      let routes = await this.router.ReactRoutes.map(
         routeObject =>
           new Promise((resolve, reject) => {
             const { clientConfig, serverConfig } = routeObject.webpack;
@@ -190,7 +158,7 @@ export default class Server {
       await this.addKoaMiddleware();
       this.passport.initStrategies();
 
-      if (this.SSRRoutes.length > 0) await this.renderReactApps();
+      if (this.router.ReactRoutes.length > 0) await this.renderReactApps();
       this.startListen();
     } catch (e) {
       this.parent.logger.error("[VelopServer] Server start(): " + e);
@@ -202,7 +170,7 @@ export default class Server {
    */
   startListen() {
     this.parent.logger.info(
-      "[VelopServer] Starting server on http://%s:%s <===",
+      "[VelopServer] Starting server on http://%s:%s",
       this.parent.config.hostname,
       this.parent.config.port
     );

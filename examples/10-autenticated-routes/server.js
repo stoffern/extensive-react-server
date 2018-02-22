@@ -3,7 +3,7 @@ const Server = require("../../src");
 const { BasicStrategy, DigestStrategy } = require("passport-http");
 
 var server = new Server({
-  environment: "production"
+  environment: "development"
 });
 
 server.addPassportStrategy(

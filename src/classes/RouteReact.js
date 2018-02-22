@@ -1,7 +1,7 @@
 import path from "path";
 import Webpack from "./Webpack";
 
-export default class ReactRoute {
+export default class RouteReact {
   constructor(prefix, app, wpClientCfg, wpServerCfg, options, middleware) {
     this.prefix = prefix;
     this.app = app;
