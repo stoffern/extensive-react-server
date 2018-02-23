@@ -61,7 +61,7 @@ export default class Router {
   async addRouteFile(file) {
     let route = require(file);
     route(this.api, this.parent.app, this.parent.config);
-    this.parent.logger.info("[Route] added: " + file);
+    this.parent.logger.info("[VelopServer][Route] added: " + file);
   }
 
   /**
