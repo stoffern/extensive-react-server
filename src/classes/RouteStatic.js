@@ -1,45 +1,68 @@
+import fs from "fs";
+import path from "path";
+import send from "koa-send";
+import passport from "koa-passport";
+import serve from "koa-static";
+import mount from "koa-mount";
+
 export default class RouteStatic {
   constructor(props, parent) {
     this.parent = parent;
+    this.authMiddleware = (ctx, next) => next();
+
+    Object.assign(this, {
+      type: props.type,
+      filePath: props.filePath,
+      servePath: props.servePath
+    });
+
+    if (!this.filePath || this.filePath.length == 0) {
+      this.parent.logger.warn(
+        "[VelopServer][Router] - called without a valid file/string."
+      );
+      return;
+    }
   }
 
   /**
-   * [addStaticFile description]
-   * @param {[type]} filePath  [description]
-   * @param {String} servePath [description]
+   * Setup with the correct config
    */
-  async addStaticFile(filePath, servePath = "") {
-    if (!filePath || filePath.length == 0) {
+  async setup() {
+    if (this.type == "file") this.addFile();
+    else this.addFolder();
+  }
+
+  /**
+   * Setup as a file route
+   */
+  addFile() {
+    let isFile = fs.lstatSync(this.filePath).isFile();
+    if (!isFile) {
       this.parent.logger.warn(
-        "[VelopServer][Router] addStaticFile() - called without a valid file/string."
+        "[VelopServer][Router] addStaticFile() - path:" +
+          this.filePath +
+          " - is not a file"
       );
       return;
     }
 
     try {
-      let isFile = fs.lstatSync(filePath).isFile();
-      if (!isFile) {
-        this.parent.logger.warn(
-          "[VelopServer][Router] addStaticFile() - path:" +
-            filePath +
-            " - is not a file"
-        );
-        return;
-      } else {
-        //send file
-        this.parent.app.use(async (ctx, next) => {
-          let publicPath =
-            servePath == ""
-              ? path.posix.join("/", path.basename(filePath))
-              : path.posix.join("/", servePath);
-          if (ctx.path == publicPath) {
-            await send(ctx, path.basename(filePath), {
-              root: path.dirname(filePath)
-            });
-            return next();
-          } else return next();
-        });
-      }
+      var servePath = this.servePath;
+
+      let publicPath =
+        servePath == ""
+          ? path.posix.join("/", path.basename(this.filePath))
+          : path.posix.join("/", servePath);
+
+      this.parent.router.api.get(
+        publicPath,
+        (ctx, next) => this.authMiddleware(passport, ctx, next),
+        async (ctx, next) => {
+          await send(ctx, path.basename(this.filePath), {
+            root: path.dirname(this.filePath)
+          });
+        }
+      );
     } catch (e) {
       this.parent.logger.warn("[VelopServer][Router] addStaticFile()");
       this.parent.logger.warn(e);
@@ -47,40 +70,28 @@ export default class RouteStatic {
   }
 
   /**
-   * [addStaticFolder description]
-   * @param {[type]} filePath  [description]
-   * @param {[type]} servePath [description]
+   * Setup as a folder route
    */
-  async addStaticFolder(filePath, servePath) {
-    if (!filePath || filePath.length == 0) {
-      this.parent.logger.warn(
-        "[VelopServer][Router] addStaticFolder() - called without a valid file/string."
-      );
-      return;
-    }
-
+  addFolder() {
     try {
-      let isFile = fs.lstatSync(filePath).isFile();
-      let isDirectory = fs.lstatSync(filePath).isDirectory();
-      if (!isFile && !isDirectory) {
+      let isDirectory = fs.lstatSync(this.filePath).isDirectory();
+      if (!isDirectory) {
         this.parent.logger.warn(
           "[VelopServer][Route] addStaticFolder() - path:" +
-            filePath +
-            " - does not exist"
+            this.filePath +
+            " - does not exist or is not a folder"
         );
         return;
       } else {
-        if (isFile) {
-          this.addStaticFile(filePath);
-        } else {
-          this.parent.app.use(
-            KoaStatic({ rootDir: filePath, rootPath: servePath })
-          );
-        }
+        this.parent.router.api.all(this.servePath, serve(this.filePath));
       }
     } catch (e) {
-      this.parent.logger.warn("[VelopServer][Router] addStaticFile()");
+      this.parent.logger.warn("[VelopServer][Router] addStaticFolder()");
       this.parent.logger.warn(e);
     }
+  }
+
+  addAuthentication(m) {
+    this.authMiddleware = m;
   }
 }
