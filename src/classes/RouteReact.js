@@ -1,12 +1,13 @@
 import path from "path";
 import Webpack from "./Webpack";
 
-export default class ReactRoute {
+export default class RouteReact {
   constructor(prefix, app, wpClientCfg, wpServerCfg, options, middleware) {
     this.prefix = prefix;
     this.app = app;
     this.options = options;
     this.middleware = middleware;
+    this.authMiddleware = null;
 
     this.webpack = new Webpack({ isDevMode: options.isDevMode }, this.parent);
     this.webpack.updateClientConfig(wpClientCfg);
@@ -46,5 +47,9 @@ export default class ReactRoute {
       );
     }
     this.webpack.addVariable({ GRAPHQL_ENDPOINT: JSON.stringify(endpoint) });
+  }
+
+  addAuthentication(auth) {
+    this.authMiddleware = auth;
   }
 }

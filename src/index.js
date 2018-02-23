@@ -22,6 +22,10 @@ module.exports = class ExtensiveReactServer {
           useEtags: false,
 
           useHelmet: true,
+          session: {
+            use: true,
+            key: "secret"
+          },
           helmetOptions: {
             noCache: true,
             frameguard: {
@@ -61,7 +65,7 @@ module.exports = class ExtensiveReactServer {
 
     this.server = new Server({}, this);
     this.webpack = new Webpack({}, this);
-    this.logger.info("[ExtServer] - Creating instance..");
+    this.logger.info("[VelopServer] - Creating instance..");
   }
 
   /**
@@ -92,7 +96,7 @@ module.exports = class ExtensiveReactServer {
    * @param {[type]}
    */
   addStaticFile(filePath, servePath) {
-    this.server.router.addStaticFile(filePath, servePath);
+    return this.server.router.addStaticFile(filePath, servePath);
   }
 
   /**
@@ -100,7 +104,15 @@ module.exports = class ExtensiveReactServer {
    * @param {[type]}
    */
   addStaticFolder(filePath, servePath) {
-    this.server.router.addStaticFolder(filePath, servePath);
+    return this.server.router.addStaticFolder(filePath, servePath);
+  }
+
+  /**
+   * [addPassportStrategy description]
+   * @param {[type]} strategy [description]
+   */
+  addPassportStrategy(strategy) {
+    this.server.passport.addPassport(strategy);
   }
 
   /**
@@ -120,7 +132,7 @@ module.exports = class ExtensiveReactServer {
     options = {},
     middleware = []
   ) {
-    return this.server.addReactRoute(
+    return this.server.router.addReactRoute(
       prefix,
       app,
       webpackClient,

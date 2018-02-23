@@ -398,6 +398,10 @@ export default class Webpack {
     );
   }
 
+  /**
+   * [compileVariables description]
+   * @return {[type]} [description]
+   */
   async compileVariables() {
     let variables = {
       "process.env": this.variables

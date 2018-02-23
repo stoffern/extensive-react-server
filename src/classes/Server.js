@@ -1,8 +1,10 @@
-import koa from "koa";
+import Koa from "koa";
 import fs from "fs";
 import compress from "koa-compress";
 import conditional from "koa-conditional-get";
 import cors from "kcors";
+import bodyParser from "koa-bodyparser";
+import session from "koa-session";
 import etags from "koa-etag";
 import helmet from "koa-helmet";
 import json from "koa-json";
@@ -12,10 +14,11 @@ import logger from "koa-logger";
 import path from "path";
 import webpack from "webpack";
 import Ddos from "ddos";
+import passport from "koa-passport";
 
 import Router from "./Router";
 import Webpack from "./Webpack";
-import ReactRoute from "./ReactRoute";
+import PassportHandler from "./PassportHandler";
 
 //
 //Handle main Koa2 and webpack for app.
@@ -24,43 +27,13 @@ export default class Server {
   constructor(props, parent) {
     this.parent = parent;
     this.logger = parent.logger;
-    this.app = new koa();
+    this.app = new Koa();
     this.router = new Router({}, this);
+    this.passport = new PassportHandler({}, this);
 
     this.isRunning = false;
-    this.SSRRoutes = [];
     this.isDevMode =
       this.parent.config.environment == "development" ? true : false;
-  }
-
-  addReactRoute(prefix, app, wpClientCfg, wpServerCfg, options, middleware) {
-    Object.assign(options, { isDevMode: this.isDevMode });
-
-    if (app.length == 0) {
-      this.parent.logger.warn(
-        "[Route] addReactRoute() - path to <App/> is missing"
-      );
-      return;
-    }
-
-    if (!fs.lstatSync(app).isFile()) {
-      this.parent.logger.warn(
-        "[Route] addReactRoute() - path to <App/> does not exist"
-      );
-      return;
-    }
-
-    let route = new ReactRoute(
-      prefix,
-      app,
-      wpClientCfg,
-      wpServerCfg,
-      options,
-      middleware
-    );
-
-    this.SSRRoutes.push(route);
-    return this.SSRRoutes[this.SSRRoutes.length - 1];
   }
 
   async renderReactApps() {
@@ -69,8 +42,9 @@ export default class Server {
       const webpackHotMiddleware = require("koa-webpack-hot-middleware");
       const webpackHotServerMiddleware = require("webpack-hot-server-middleware");
 
-      await this.SSRRoutes.map(async routeObject => {
+      await this.router.ReactRoutes.map(async routeObject => {
         const compiledConfigs = await routeObject.webpack.compile();
+
         await this.app.use(
           this.koaDevware(
             webpackDevMiddleware(compiledConfigs, {
@@ -84,23 +58,33 @@ export default class Server {
             })
           )
         );
+
         await this.app.use(
           koaConvert(webpackHotMiddleware(compiledConfigs.compilers[0]))
         );
+
         await this.app.use(
           webpackHotServerMiddleware(compiledConfigs, {
-            createHandler: webpackHotServerMiddleware.createKoaHandler
+            createHandler: webpackHotServerMiddleware.createKoaHandler,
+            serverRendererOptions: {
+              passport: passport,
+              authMiddleware: routeObject.authMiddleware,
+              middleware: routeObject.middleware
+            }
           })
         );
       });
     } else {
       this.parent.logger.info(
-        "[Compile] Getting files ready, this may take a while...."
+        "[VelopServer][Compile] Getting files ready, this may take a while...."
       );
-      let routes = await this.SSRRoutes.map(
+
+      //Render React Routes
+      let routes = await this.router.ReactRoutes.map(
         routeObject =>
           new Promise((resolve, reject) => {
             const { clientConfig, serverConfig } = routeObject.webpack;
+            const { authMiddleware } = routeObject;
 
             routeObject.webpack.compileWithCallback((err, stats) => {
               //host static files and files only
@@ -109,6 +93,7 @@ export default class Server {
                   clientConfig.output.publicPath,
                   asset.name
                 );
+
                 this.app.use(async (ctx, next) => {
                   if (ctx.path == publicPath) {
                     await send(ctx, asset.name, {
@@ -134,8 +119,12 @@ export default class Server {
               let serverRender = require(path.resolve(
                 serverConfig.output.path,
                 serverFile
-              )).default;
-              this.app.use(serverRender({ clientStats }));
+              ));
+
+              this.app.use(
+                serverRender({ clientStats, authMiddleware, passport })
+              );
+
               resolve();
             });
           })
@@ -151,8 +140,13 @@ export default class Server {
   async start() {
     try {
       if (this.isDevMode)
-        this.parent.logger.info("[Start] Running in development mode!");
-      else this.parent.logger.info("[Start] Running in production mode!");
+        this.parent.logger.info(
+          "[VelopServer][Start] Running in development mode!"
+        );
+      else
+        this.parent.logger.info(
+          "[VelopServer][Start] Running in production mode!"
+        );
 
       if (
         this.parent.config.environment == "development" &&
@@ -162,12 +156,14 @@ export default class Server {
         this.app.use(logger());
 
       await this.addKoaMiddleware();
+      this.passport.initStrategies();
 
-      if (this.SSRRoutes.length > 0) await this.renderReactApps();
+      if (this.router.ReactRoutes.length > 0) await this.renderReactApps();
+      this.router.setupStaticRoutes();
 
       this.startListen();
     } catch (e) {
-      this.parent.logger.error("Server start(): " + e);
+      this.parent.logger.error("[VelopServer] Server start(): " + e);
     }
   }
 
@@ -176,7 +172,7 @@ export default class Server {
    */
   startListen() {
     this.parent.logger.info(
-      "Starting server on http://%s:%s <===",
+      "[VelopServer] Starting server on http://%s:%s",
       this.parent.config.hostname,
       this.parent.config.port
     );
@@ -191,7 +187,7 @@ export default class Server {
       this.app.listen(this.parent.config.port, () => {
         this.parent.logger.info();
         this.parent.logger.info(
-          "==> Server is up at http://%s:%s <===",
+          "[VelopServer] ==> Server is up at http://%s:%s <===",
           this.parent.config.hostname,
           this.parent.config.port
         );
@@ -251,5 +247,17 @@ export default class Server {
       this.app.use(conditional());
       this.app.use(etags());
     }
+
+    if (this.parent.config.options.session.use == true) {
+      if (this.parent.config.options.session.key == "secret")
+        this.parent.logger.warn(
+          "[VelopServer][Session] - YOU HAVE NOT SET A SESSION KEY, THIS CAN BE A SECURITY RISK"
+        );
+
+      this.app.keys = [this.parent.config.options.session.key];
+      this.app.use(session({}, this.app));
+    }
+
+    this.app.use(bodyParser());
   }
 }
