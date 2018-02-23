@@ -101,17 +101,6 @@ Good luck!
 - [winston]() - Winston logger
 
 
-## Todo:
-- [x] Add support for custom routes
-- [x] Add support for multiple React apps with serverside render (SSR)
-- [ ] Allow middleware for react paths (example: authentication)
-- [x] Add support for Passport
-- [x] Add support for Relay
-- [x] Add support for custom index.html file for SSR
-- [x] Create examples
-- [x] Better documentation
-
-
 ## Thanks to:
 - [taion](https://github.com/taion) for found router
 - [sokra](https://github.com/sokra) for webpack
