@@ -29,7 +29,6 @@ export default class Server {
     this.logger = parent.logger;
     this.app = new Koa();
     this.router = new Router({}, this);
-    this.status = false;
     this.passport = new PassportHandler({}, this);
 
     this.isRunning = false;
@@ -185,7 +184,7 @@ export default class Server {
     //Only start once
     if (!this.isRunning) {
       this.isRunning = !this.isRunning;
-      this.status = this.app.listen(this.parent.config.port, () => {
+      return this.app.listen(this.parent.config.port, () => {
         this.parent.logger.info();
         this.parent.logger.info(
           "[VelopServer] ==> Server is up at http://%s:%s <===",
@@ -194,7 +193,6 @@ export default class Server {
         );
         this.parent.logger.info();
       });
-      return this.status;
     } else {
       return false;
     }
