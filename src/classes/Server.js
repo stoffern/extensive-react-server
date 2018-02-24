@@ -194,6 +194,9 @@ export default class Server {
         );
         this.parent.logger.info();
       });
+      return this.status;
+    } else {
+      return false;
     }
   }
 

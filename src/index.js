@@ -72,7 +72,7 @@ module.exports = class ExtensiveReactServer {
    * Starts the engine
    */
   start() {
-    this.server.start();
+    return this.server.start();
   }
 
   /**
