@@ -161,7 +161,7 @@ export default class Server {
       if (this.router.ReactRoutes.length > 0) await this.renderReactApps();
       this.router.setupStaticRoutes();
 
-      this.startListen();
+      return this.startListen();
     } catch (e) {
       this.parent.logger.error("[VelopServer] Server start(): " + e);
     }
