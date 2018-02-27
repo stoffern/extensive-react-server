@@ -1,7 +1,7 @@
 const path = require("path");
-const EReactServer = require("../../src");
-
-var server = new EReactServer(); // create a new instance
+const Server = require("../../src");
+console.log(Server);
+var server = new Server(); // create a new instance
 
 const mainRoute = server.addReactRoute(
   "", //Route prefix

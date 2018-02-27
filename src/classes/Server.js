@@ -28,6 +28,7 @@ export default class Server {
     this.parent = parent;
     this.logger = parent.logger;
     this.app = new Koa();
+    this.listen = null;
     this.router = new Router({}, this);
     this.passport = new PassportHandler({}, this);
 
@@ -184,7 +185,7 @@ export default class Server {
     //Only start once
     if (!this.isRunning) {
       this.isRunning = !this.isRunning;
-      return this.app.listen(this.parent.config.port, () => {
+      this.listen = this.app.listen(this.parent.config.port, () => {
         this.parent.logger.info();
         this.parent.logger.info(
           "[VelopServer] ==> Server is up at http://%s:%s <===",
@@ -193,11 +194,20 @@ export default class Server {
         );
         this.parent.logger.info();
       });
+
+      return this.listen;
     } else {
       return false;
     }
   }
 
+  async stop() {
+    this.parent.logger.info(
+      "[VelopServer] - Stop server",
+      this.parent.config.hostname,
+      this.parent.config.port
+    );
+  }
   /**
    * Handle Koa Development middleware after compile is complete
    * @param  {webpackmiddleware} dev
