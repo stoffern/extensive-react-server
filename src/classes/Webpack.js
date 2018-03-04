@@ -29,7 +29,6 @@ export default class Webpack {
     this.clientConfig = {
       name: "client",
       target: "web",
-      devtool: "eval",
       module: {
         rules: [
           {
@@ -42,6 +41,10 @@ export default class Webpack {
               }
             },
             exclude: /node_modules/
+          },
+          {
+            test: /\.json$/,
+            loader: "json-loader"
           }
         ]
       },
@@ -53,7 +56,6 @@ export default class Webpack {
     this.serverConfig = {
       name: "server",
       target: "node",
-      devtool: "eval",
       entry: path.join(this.parent.packagePath, "utils/server-render"),
       module: {
         rules: [
@@ -85,7 +87,6 @@ export default class Webpack {
   }
 
   setClientConfigDev() {
-    console.log(path.join(this.parent.packagePath, "utils/client-render"));
     this.clientConfig = webpackMerge(true, this.clientConfig, {
       mode: "development",
       entry: [
@@ -109,7 +110,6 @@ export default class Webpack {
   setClientConfigProd() {
     this.clientConfig = webpackMerge(true, this.clientConfig, {
       mode: "production",
-      devtool: "nosources-source-map",
       entry: path.join(this.parent.packagePath, "utils/client-render"),
       output: {
         filename: "[name].[chunkhash].js",
@@ -137,7 +137,6 @@ export default class Webpack {
   setServerConfigProd() {
     this.serverConfig = webpackMerge(true, this.serverConfig, {
       mode: "production",
-      devtool: "source-map",
       output: {
         path: path.resolve(process.cwd(), "build/ssr"),
         filename: "[name].[chunkhash].js",
