@@ -3,8 +3,6 @@ import React from "react";
 
 import { Link, Route, Redirect, makeRouteConfig } from "../../../src/router";
 
-console.log(Link);
-
 function LinkItem(props) {
   return (
     <li>
