@@ -23,7 +23,6 @@ NextJS is a great tool for creating a boilerplate setup that you can edit for yo
 ## Table of Contents
 - [Installation](#installation)
 - [Getting started](#getting-started)
-- [TODO](#todo)
 - [Thanks to](#thanks-to)
 
 
