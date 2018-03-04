@@ -89,6 +89,7 @@ export default class Webpack {
 
   setClientConfigDev() {
     this.clientConfig = webpackMerge(true, this.clientConfig, {
+      mode: "development",
       entry: [
         "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=false&quiet=false&noInfo=false",
         "react-hot-loader/patch",
@@ -112,6 +113,7 @@ export default class Webpack {
 
   setClientConfigProd() {
     this.clientConfig = webpackMerge(true, this.clientConfig, {
+      mode: "production",
       devtool: "nosources-source-map",
       entry: path.resolve(
         process.cwd(),
@@ -123,57 +125,33 @@ export default class Webpack {
         path: path.resolve(process.cwd(), "build/client"),
         publicPath: "/static/"
       },
-      plugins: [
-        new webpack.optimize.UglifyJsPlugin({
-          compress: {
-            screw_ie8: true,
-            warnings: false
-          },
-          mangle: {
-            screw_ie8: true
-          },
-          output: {
-            screw_ie8: true,
-            comments: false
-          },
-          sourceMap: true
-        }),
-        new webpack.HashedModuleIdsPlugin()
-      ]
+      plugins: [new webpack.HashedModuleIdsPlugin()]
     });
   }
 
   setServerConfigDev() {
     let externals = this.externals;
     this.serverConfig = webpackMerge(true, this.serverConfig, {
+      mode: "development",
       externals,
       output: {
         path: path.resolve(__dirname, "build/ssr"),
         filename: "[name].js",
         libraryTarget: "commonjs2"
-      },
-      plugins: [
-        new webpack.optimize.LimitChunkCountPlugin({
-          maxChunks: 1
-        })
-      ]
+      }
     });
   }
 
   setServerConfigProd() {
     this.serverConfig = webpackMerge(true, this.serverConfig, {
+      mode: "production",
       devtool: "source-map",
       output: {
         path: path.resolve(process.cwd(), "build/ssr"),
         filename: "[name].[chunkhash].js",
         chunkFilename: "[name].[chunkhash].js",
         libraryTarget: "commonjs2"
-      },
-      plugins: [
-        new webpack.optimize.LimitChunkCountPlugin({
-          maxChunks: 1
-        })
-      ]
+      }
     });
   }
 
