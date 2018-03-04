@@ -15,6 +15,7 @@ import path from "path";
 import webpack from "webpack";
 import Ddos from "ddos";
 import passport from "koa-passport";
+import findNodeModules from "find-node-modules";
 
 import Router from "./Router";
 import Webpack from "./Webpack";
@@ -35,6 +36,35 @@ export default class Server {
     this.isRunning = false;
     this.isDevMode =
       this.parent.config.environment == "development" ? true : false;
+
+    this.packagePath = "";
+    this.setRootPath();
+  }
+
+  setRootPath() {
+    try {
+      let modulesFolder = path.resolve(findNodeModules()[0]);
+      let modulesPackage = path.resolve(modulesFolder, "@velop/server/lib");
+      let srcFolder = path.join(modulesFolder, "..", "src");
+      if (
+        fs.lstatSync(path.resolve(srcFolder, "utils")).isDirectory() &&
+        fs
+          .lstatSync(path.resolve(srcFolder, "utils", "client-render.js"))
+          .isFile()
+      ) {
+        this.packagePath = srcFolder;
+      } else if (fs.lstatSync(modulesPackage).isDirectory()) {
+        this.packagePath = modulesPackage;
+      } else {
+        this.parent.logger.info(
+          "[VelopServer][Error] Could not find node_modules or source path...."
+        );
+      }
+    } catch (e) {
+      this.parent.logger.info(
+        "[VelopServer][Error] Could not find node_modules or source path...."
+      );
+    }
   }
 
   async renderReactApps() {

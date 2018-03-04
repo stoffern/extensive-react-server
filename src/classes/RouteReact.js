@@ -2,8 +2,17 @@ import path from "path";
 import Webpack from "./Webpack";
 
 export default class RouteReact {
-  constructor(prefix, app, wpClientCfg, wpServerCfg, options, middleware) {
+  constructor(
+    prefix,
+    app,
+    wpClientCfg,
+    wpServerCfg,
+    options,
+    middleware,
+    parent
+  ) {
     this.prefix = prefix;
+    this.parent = parent;
     this.app = app;
     this.options = options;
     this.middleware = middleware;

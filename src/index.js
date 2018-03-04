@@ -64,7 +64,7 @@ module.exports = class VelopServer {
     });
 
     this.server = new Server({}, this);
-    this.logger.info("[VelopServer] - Creating instance..");
+    this.logger.info("[VelopServer] - Starting..");
   }
 
   /**

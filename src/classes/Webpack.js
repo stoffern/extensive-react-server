@@ -5,7 +5,6 @@ import _ from "lodash";
 import webpack from "webpack";
 import uuidv4 from "uuid/v4";
 import webpackMerge from "webpack-merge";
-import FindNodeModules from "find-node-modules";
 
 export default class Webpack {
   constructor(props, parent) {
@@ -13,8 +12,6 @@ export default class Webpack {
     this.compileConfigs = [];
 
     this.variables = {};
-    this.modulesPath = FindNodeModules()[0];
-    console.log(this.modulesPath);
 
     this.externals = [];
     let modulesPath = path.resolve(process.cwd(), "node_modules");
@@ -57,11 +54,7 @@ export default class Webpack {
       name: "server",
       target: "node",
       devtool: "eval",
-      entry: path.join(
-        process.cwd(),
-        this.modulesPath,
-        "@velop/server/lib/utils/server-render"
-      ),
+      entry: path.join(this.parent.packagePath, "utils/server-render"),
       module: {
         rules: [
           {
@@ -92,16 +85,13 @@ export default class Webpack {
   }
 
   setClientConfigDev() {
+    console.log(path.join(this.parent.packagePath, "utils/client-render"));
     this.clientConfig = webpackMerge(true, this.clientConfig, {
       mode: "development",
       entry: [
         "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=false&quiet=false&noInfo=false",
         "react-hot-loader/patch",
-        path.join(
-          process.cwd(),
-          this.modulesPath,
-          "@velop/server/lib/utils/client-render"
-        )
+        path.join(this.parent.packagePath, "utils/client-render")
       ],
       output: {
         filename: "[name].js",
@@ -120,11 +110,7 @@ export default class Webpack {
     this.clientConfig = webpackMerge(true, this.clientConfig, {
       mode: "production",
       devtool: "nosources-source-map",
-      entry: path.join(
-        process.cwd(),
-        this.modulesPath,
-        "@velop/server/lib/utils/client-render"
-      ),
+      entry: path.join(this.parent.packagePath, "utils/client-render"),
       output: {
         filename: "[name].[chunkhash].js",
         chunkFilename: "[name].[chunkhash].js",
