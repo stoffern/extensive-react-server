@@ -24,8 +24,16 @@ export default class Router {
    * @param {[type]} options     [description]
    * @param {[type]} middleware  [description]
    */
-  addReactRoute(prefix, app, wpClientCfg, wpServerCfg, options, middleware) {
-    Object.assign(options, { isDevMode: this.isDevMode });
+  addReactRoute(
+    prefix,
+    app,
+    wpClientCfg,
+    wpServerCfg,
+    options,
+    middleware,
+    parent
+  ) {
+    Object.assign(options, { isDevMode: this.parent.isDevMode });
 
     if (app.length == 0) {
       this.parent.logger.warn(
@@ -47,7 +55,8 @@ export default class Router {
       wpClientCfg,
       wpServerCfg,
       options,
-      middleware
+      middleware,
+      this.parent
     );
 
     this.ReactRoutes.push(route);

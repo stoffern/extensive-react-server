@@ -5,7 +5,6 @@ import _ from "lodash";
 import webpack from "webpack";
 import uuidv4 from "uuid/v4";
 import webpackMerge from "webpack-merge";
-import HappyPack from "happypack";
 
 export default class Webpack {
   constructor(props, parent) {
@@ -35,7 +34,13 @@ export default class Webpack {
         rules: [
           {
             test: /\.js$/,
-            use: "happypack/loader",
+            use: {
+              loader: "babel-loader",
+              options: {
+                babelrc: true,
+                comments: true
+              }
+            },
             exclude: /node_modules/
           }
         ]
@@ -49,15 +54,18 @@ export default class Webpack {
       name: "server",
       target: "node",
       devtool: "eval",
-      entry: path.resolve(
-        process.cwd(),
-        "node_modules/extensive-react-server/lib/utils/server-render"
-      ),
+      entry: path.join(this.parent.packagePath, "utils/server-render"),
       module: {
         rules: [
           {
             test: /\.js$/,
-            use: "happypack/loader",
+            use: {
+              loader: "babel-loader",
+              options: {
+                babelrc: true,
+                comments: true
+              }
+            },
             exclude: /node_modules/
           }
         ]
@@ -77,14 +85,13 @@ export default class Webpack {
   }
 
   setClientConfigDev() {
+    console.log(path.join(this.parent.packagePath, "utils/client-render"));
     this.clientConfig = webpackMerge(true, this.clientConfig, {
+      mode: "development",
       entry: [
         "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=false&quiet=false&noInfo=false",
         "react-hot-loader/patch",
-        path.resolve(
-          process.cwd(),
-          "node_modules/extensive-react-server/lib/utils/client-render"
-        )
+        path.join(this.parent.packagePath, "utils/client-render")
       ],
       output: {
         filename: "[name].js",
@@ -93,17 +100,6 @@ export default class Webpack {
         publicPath: "/static/"
       },
       plugins: [
-        new HappyPack({
-          loaders: [
-            {
-              loader: "babel-loader",
-              options: {
-                babelrc: true,
-                comments: true
-              }
-            }
-          ]
-        }),
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoEmitOnErrorsPlugin()
       ]
@@ -112,101 +108,42 @@ export default class Webpack {
 
   setClientConfigProd() {
     this.clientConfig = webpackMerge(true, this.clientConfig, {
+      mode: "production",
       devtool: "nosources-source-map",
-      entry: path.resolve(
-        process.cwd(),
-        "node_modules/extensive-react-server/lib/utils/client-render"
-      ),
+      entry: path.join(this.parent.packagePath, "utils/client-render"),
       output: {
         filename: "[name].[chunkhash].js",
         chunkFilename: "[name].[chunkhash].js",
         path: path.resolve(process.cwd(), "build/client"),
         publicPath: "/static/"
       },
-      plugins: [
-        new HappyPack({
-          loaders: [
-            {
-              loader: "babel-loader",
-              options: {
-                babelrc: true,
-                comments: true
-              }
-            }
-          ]
-        }),
-        new webpack.optimize.UglifyJsPlugin({
-          compress: {
-            screw_ie8: true,
-            warnings: false
-          },
-          mangle: {
-            screw_ie8: true
-          },
-          output: {
-            screw_ie8: true,
-            comments: false
-          },
-          sourceMap: true
-        }),
-        new webpack.HashedModuleIdsPlugin()
-      ]
+      plugins: [new webpack.HashedModuleIdsPlugin()]
     });
   }
 
   setServerConfigDev() {
     let externals = this.externals;
     this.serverConfig = webpackMerge(true, this.serverConfig, {
+      mode: "development",
       externals,
       output: {
         path: path.resolve(__dirname, "build/ssr"),
         filename: "[name].js",
         libraryTarget: "commonjs2"
-      },
-      plugins: [
-        new HappyPack({
-          loaders: [
-            {
-              loader: "babel-loader",
-              options: {
-                babelrc: true,
-                comments: true
-              }
-            }
-          ]
-        }),
-        new webpack.optimize.LimitChunkCountPlugin({
-          maxChunks: 1
-        })
-      ]
+      }
     });
   }
 
   setServerConfigProd() {
     this.serverConfig = webpackMerge(true, this.serverConfig, {
+      mode: "production",
       devtool: "source-map",
       output: {
         path: path.resolve(process.cwd(), "build/ssr"),
         filename: "[name].[chunkhash].js",
         chunkFilename: "[name].[chunkhash].js",
         libraryTarget: "commonjs2"
-      },
-      plugins: [
-        new HappyPack({
-          loaders: [
-            {
-              loader: "babel-loader",
-              options: {
-                babelrc: true,
-                comments: true
-              }
-            }
-          ]
-        }),
-        new webpack.optimize.LimitChunkCountPlugin({
-          maxChunks: 1
-        })
-      ]
+      }
     });
   }
 

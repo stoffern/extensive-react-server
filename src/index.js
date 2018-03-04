@@ -5,7 +5,7 @@ import winston from "winston";
 import Server from "./classes/Server";
 import Webpack from "./classes/Webpack";
 
-module.exports = class ExtensiveReactServer {
+module.exports = class VelopServer {
   constructor(props) {
     this.config = Object.assign(
       {
@@ -64,8 +64,7 @@ module.exports = class ExtensiveReactServer {
     });
 
     this.server = new Server({}, this);
-    this.webpack = new Webpack({}, this);
-    this.logger.info("[VelopServer] - Creating instance..");
+    this.logger.info("[VelopServer] - Starting..");
   }
 
   /**
