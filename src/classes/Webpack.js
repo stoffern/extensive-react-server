@@ -5,7 +5,6 @@ import _ from "lodash";
 import webpack from "webpack";
 import uuidv4 from "uuid/v4";
 import webpackMerge from "webpack-merge";
-import HappyPack from "happypack";
 
 export default class Webpack {
   constructor(props, parent) {
@@ -35,7 +34,13 @@ export default class Webpack {
         rules: [
           {
             test: /\.js$/,
-            use: "happypack/loader",
+            use: {
+              loader: "babel-loader",
+              options: {
+                babelrc: true,
+                comments: true
+              }
+            },
             exclude: /node_modules/
           }
         ]
@@ -57,7 +62,13 @@ export default class Webpack {
         rules: [
           {
             test: /\.js$/,
-            use: "happypack/loader",
+            use: {
+              loader: "babel-loader",
+              options: {
+                babelrc: true,
+                comments: true
+              }
+            },
             exclude: /node_modules/
           }
         ]
@@ -93,17 +104,6 @@ export default class Webpack {
         publicPath: "/static/"
       },
       plugins: [
-        new HappyPack({
-          loaders: [
-            {
-              loader: "babel-loader",
-              options: {
-                babelrc: true,
-                comments: true
-              }
-            }
-          ]
-        }),
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoEmitOnErrorsPlugin()
       ]
@@ -124,17 +124,6 @@ export default class Webpack {
         publicPath: "/static/"
       },
       plugins: [
-        new HappyPack({
-          loaders: [
-            {
-              loader: "babel-loader",
-              options: {
-                babelrc: true,
-                comments: true
-              }
-            }
-          ]
-        }),
         new webpack.optimize.UglifyJsPlugin({
           compress: {
             screw_ie8: true,
@@ -164,17 +153,6 @@ export default class Webpack {
         libraryTarget: "commonjs2"
       },
       plugins: [
-        new HappyPack({
-          loaders: [
-            {
-              loader: "babel-loader",
-              options: {
-                babelrc: true,
-                comments: true
-              }
-            }
-          ]
-        }),
         new webpack.optimize.LimitChunkCountPlugin({
           maxChunks: 1
         })
@@ -192,17 +170,6 @@ export default class Webpack {
         libraryTarget: "commonjs2"
       },
       plugins: [
-        new HappyPack({
-          loaders: [
-            {
-              loader: "babel-loader",
-              options: {
-                babelrc: true,
-                comments: true
-              }
-            }
-          ]
-        }),
         new webpack.optimize.LimitChunkCountPlugin({
           maxChunks: 1
         })

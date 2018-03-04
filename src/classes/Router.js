@@ -25,7 +25,7 @@ export default class Router {
    * @param {[type]} middleware  [description]
    */
   addReactRoute(prefix, app, wpClientCfg, wpServerCfg, options, middleware) {
-    Object.assign(options, { isDevMode: this.isDevMode });
+    Object.assign(options, { isDevMode: this.parent.isDevMode });
 
     if (app.length == 0) {
       this.parent.logger.warn(
