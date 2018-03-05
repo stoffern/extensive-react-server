@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import KoaRouter from "koa-router";
 import send from "koa-send";
+import _ from "lodash";
 
 import RouteReact from "./RouteReact";
 import RouteStatic from "./RouteStatic";
@@ -42,7 +43,7 @@ export default class Router {
       return;
     }
 
-    if (!fs.lstatSync(app).isFile()) {
+    if (!fs.existsSync(app)) {
       this.parent.logger.warn(
         "[VelopServer][Route] addReactRoute() - path to <App/> does not exist"
       );
@@ -78,14 +79,12 @@ export default class Router {
    * @param {[string]} routeArray path to folder
    *                            with routes
    */
-  async addRouteFolder(routeArray) {
-    if (!routeArray.isArray()) {
-      this.parent.logger.warn(
-        "[VelopServer][Route] addRouteFolder() - the function should contain a array!"
-      );
-      return;
+  async addRouteFolder(routes) {
+    if (!_.isArray(routes)) {
+      this.addRoute(routes);
+    } else {
+      routes.map(route => this.addRoute(route));
     }
-    routeArray.map(route => this.addRoute(route));
   }
 
   /**

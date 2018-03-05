@@ -78,7 +78,7 @@ module.exports = class VelopServer {
    * Adds routes to the route config
    * @param {array} routes [route, route2, routefolder, routefolder3]
    */
-  addRouteFolder(routes) {
+  addRouteFolder(route) {
     this.server.router.addRouteFolder(route);
   }
 

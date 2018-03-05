@@ -1,6 +1,5 @@
 const path = require("path");
 const Server = require("../../src");
-console.log(Server);
 var server = new Server(); // create a new instance
 
 const mainRoute = server.addReactRoute(
