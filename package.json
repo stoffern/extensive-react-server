@@ -126,7 +126,7 @@
     "serialize-javascript": "^1.4.0",
     "shx": "^0.2.2",
     "uuid": "^3.1.0",
-    "webpack": "4.0.1",
+    "webpack": "4.1.0",
     "webpack-dev-middleware": "^2.0.0",
     "webpack-flush-chunks": "^1.1.23",
     "webpack-hot-server-middleware": "0.4.0",
