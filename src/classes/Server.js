@@ -74,41 +74,45 @@ export default class Server {
         const webpackHotMiddleware = require("koa-webpack-hot-middleware");
         const webpackHotServerMiddleware = require("webpack-hot-server-middleware");
 
-        await this.router.ReactRoutes.map(async routeObject => {
-          const compiledConfigs = await routeObject.webpack.compile(() => {
-            resolve("compile complete");
-          });
-          console.log("back to function");
+        let routes = await this.router.ReactRoutes.map(
+          routeObject =>
+            new Promise(async (resolve, reject) => {
+              const compiledConfigs = await routeObject.webpack.compile(() => {
+                resolve("compile complete");
+              });
 
-          await this.app.use(
-            this.koaDevware(
-              webpackDevMiddleware(compiledConfigs, {
-                serverSideRender: true,
-                publicPath:
-                  compiledConfigs.compilers[0].options.output.publicPath,
-                stats: {
-                  colors: true,
-                  modules: false
-                }
-              })
-            )
-          );
+              await this.app.use(
+                this.koaDevware(
+                  webpackDevMiddleware(compiledConfigs, {
+                    serverSideRender: true,
+                    publicPath:
+                      compiledConfigs.compilers[0].options.output.publicPath,
+                    stats: {
+                      colors: true,
+                      modules: false
+                    }
+                  })
+                )
+              );
 
-          await this.app.use(
-            koaConvert(webpackHotMiddleware(compiledConfigs.compilers[0]))
-          );
+              await this.app.use(
+                koaConvert(webpackHotMiddleware(compiledConfigs.compilers[0]))
+              );
 
-          await this.app.use(
-            webpackHotServerMiddleware(compiledConfigs, {
-              createHandler: webpackHotServerMiddleware.createKoaHandler,
-              serverRendererOptions: {
-                passport: passport,
-                authMiddleware: routeObject.authMiddleware,
-                middleware: routeObject.middleware
-              }
+              await this.app.use(
+                webpackHotServerMiddleware(compiledConfigs, {
+                  createHandler: webpackHotServerMiddleware.createKoaHandler,
+                  serverRendererOptions: {
+                    passport: passport,
+                    authMiddleware: routeObject.authMiddleware,
+                    middleware: routeObject.middleware
+                  }
+                })
+              );
             })
-          );
-        });
+        );
+        await Promise.all(routes);
+        resolve();
       });
     } else {
       return new Promise(async (resolve, reject) => {

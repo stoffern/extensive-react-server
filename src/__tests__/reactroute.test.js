@@ -64,13 +64,13 @@ describe("React routes", async () => {
     );
     app = await server.start();
     await request(app)
-      .get("/foo")
+      .get("/prefix/foo")
       .expect(200);
 
     app.close();
   });
 
-  test("React app with prefix - development", async () => {
+  test("React app with prefix - production", async () => {
     server = new Server({
       port: 3023,
       environment: "production",

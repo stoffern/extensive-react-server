@@ -167,4 +167,53 @@ describe("Passport tests", async () => {
 
     app.close();
   });
+
+  test("React app - development", async () => {
+    server = new Server({
+      environment: "development",
+      port: 3031,
+      options: {
+        logging: false,
+        logRequests: false
+      }
+    });
+
+    server.addPassportStrategy(
+      new BasicStrategy((username, password, done) => {
+        if (username == "test" && password == "tester")
+          done(null, { username: username, password: password });
+        else done(null, false);
+      })
+    );
+
+    let route = server.addReactRoute(
+      "",
+      path.resolve(process.cwd(), "src/__mocks__/react/Routes.js")
+    );
+
+    route.addAuthentication((passport, ctx, next) => {
+      passport.authenticate("basic", (err, user, info) => {
+        if (user) ctx.login(user);
+        else ctx.logout();
+      })(ctx, next);
+
+      if (!ctx.isAuthenticated()) {
+        ctx.status = 401;
+        ctx.body = "Unauthorized";
+      }
+    });
+
+    app = await server.start();
+    await request(app)
+      .get("/foo")
+      .expect(401)
+      .expect("Unauthorized");
+
+    await request(app)
+      .get("/foo")
+      .set("Authorization", "Basic dGVzdDp0ZXN0ZXI=")
+      .expect(200);
+
+    app.close();
+  });
 });

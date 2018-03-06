@@ -62,3 +62,6 @@ src
 cli
 ua.log
 example
+build
+coverage
+.circleci
