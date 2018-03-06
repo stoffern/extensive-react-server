@@ -3,7 +3,7 @@ import path from "path";
 import Server from "../index.js";
 const { BasicStrategy, DigestStrategy } = require("passport-http");
 
-jest.setTimeout(20000);
+jest.setTimeout(40000);
 
 describe("Passport tests", async () => {
   let server;
