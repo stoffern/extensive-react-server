@@ -2,13 +2,12 @@ import fs from "fs";
 import path from "path";
 import send from "koa-send";
 import passport from "koa-passport";
-import serve from "koa-static";
 import mount from "koa-mount";
 
 export default class RouteStatic {
   constructor(props, parent) {
     this.parent = parent;
-    this.authMiddleware = (ctx, next) => next();
+    this.authMiddleware = (passport, ctx, next) => next();
 
     Object.assign(this, {
       type: props.type,
@@ -83,12 +82,41 @@ export default class RouteStatic {
         );
         return;
       } else {
-        this.parent.router.api.all(this.servePath, serve(this.filePath));
+        this.parent.router.api.all(
+          path.join(this.servePath, "/", "*"),
+          (ctx, next) => this.authMiddleware(passport, ctx, next),
+          this.serveFolder(path.resolve(this.filePath))
+        );
       }
     } catch (e) {
       this.parent.logger.warn("[VelopServer][Router] addStaticFolder()");
       this.parent.logger.warn(e);
     }
+  }
+
+  serveFolder(root, opts) {
+    const send = require("koa-send");
+
+    opts = opts || {};
+    opts.index = opts.index || "index.html";
+
+    root = path.resolve(root);
+
+    if (opts.debug) console.log('Static mounted on "%s"', root);
+
+    return async function(ctx, next) {
+      if (ctx.method != "GET" && ctx.method != "HEAD") await next();
+      if (ctx.body != null || ctx.status != 404) await next();
+
+      let file = ctx.params["0"] || "/" + opts.index;
+      if (fs.existsSync(path.resolve(root, file))) {
+        let requested = path.normalize(file);
+        if (requested.length == 0 || requested == "/") requested = opts.index;
+        await send(ctx, requested, { root: root });
+      } else {
+        return next();
+      }
+    };
   }
 
   addAuthentication(m) {

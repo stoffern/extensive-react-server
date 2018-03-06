@@ -69,98 +69,110 @@ export default class Server {
 
   async renderReactApps() {
     if (this.isDevMode) {
-      const webpackDevMiddleware = require("webpack-dev-middleware");
-      const webpackHotMiddleware = require("koa-webpack-hot-middleware");
-      const webpackHotServerMiddleware = require("webpack-hot-server-middleware");
+      return new Promise(async (resolve, reject) => {
+        const webpackDevMiddleware = require("webpack-dev-middleware");
+        const webpackHotMiddleware = require("koa-webpack-hot-middleware");
+        const webpackHotServerMiddleware = require("webpack-hot-server-middleware");
 
-      await this.router.ReactRoutes.map(async routeObject => {
-        const compiledConfigs = await routeObject.webpack.compile();
-
-        await this.app.use(
-          this.koaDevware(
-            webpackDevMiddleware(compiledConfigs, {
-              serverSideRender: true,
-              publicPath:
-                compiledConfigs.compilers[0].options.output.publicPath,
-              stats: {
-                colors: true,
-                modules: false
-              }
-            })
-          )
-        );
-
-        await this.app.use(
-          koaConvert(webpackHotMiddleware(compiledConfigs.compilers[0]))
-        );
-
-        await this.app.use(
-          webpackHotServerMiddleware(compiledConfigs, {
-            createHandler: webpackHotServerMiddleware.createKoaHandler,
-            serverRendererOptions: {
-              passport: passport,
-              authMiddleware: routeObject.authMiddleware,
-              middleware: routeObject.middleware
-            }
-          })
-        );
-      });
-    } else {
-      this.parent.logger.info(
-        "[VelopServer][Compile] Getting files ready, this may take a while...."
-      );
-
-      //Render React Routes
-      let routes = await this.router.ReactRoutes.map(
-        routeObject =>
-          new Promise((resolve, reject) => {
-            const { clientConfig, serverConfig } = routeObject.webpack;
-            const { authMiddleware } = routeObject;
-
-            routeObject.webpack.compileWithCallback((err, stats) => {
-              //host static files and files only
-              stats.toJson().children[0].assets.map(asset => {
-                const publicPath = path.posix.join(
-                  clientConfig.output.publicPath,
-                  asset.name
-                );
-
-                this.app.use(async (ctx, next) => {
-                  if (ctx.path == publicPath) {
-                    await send(ctx, asset.name, {
-                      root: clientConfig.output.path
-                    });
-                  } else {
-                    return next();
-                  }
-                });
+        let routes = await this.router.ReactRoutes.map(
+          routeObject =>
+            new Promise(async (resolve, reject) => {
+              const compiledConfigs = await routeObject.webpack.compile(() => {
+                resolve("compile complete");
               });
 
-              //render html if route matches..
-              let clientStats = stats.toJson().children[0];
-              let serverStats = stats.toJson().children[1];
-
-              let serverFile;
-              serverStats.assets.map(file => {
-                if (path.extname(file.name) == ".js") {
-                  serverFile = file.name;
-                }
-              });
-
-              let serverRender = require(path.resolve(
-                serverConfig.output.path,
-                serverFile
-              ));
-
-              this.app.use(
-                serverRender({ clientStats, authMiddleware, passport })
+              await this.app.use(
+                this.koaDevware(
+                  webpackDevMiddleware(compiledConfigs, {
+                    serverSideRender: true,
+                    publicPath:
+                      compiledConfigs.compilers[0].options.output.publicPath,
+                    stats: {
+                      colors: true,
+                      modules: false
+                    }
+                  })
+                )
               );
 
-              resolve();
-            });
-          })
-      );
-      Promise.all(routes);
+              await this.app.use(
+                koaConvert(webpackHotMiddleware(compiledConfigs.compilers[0]))
+              );
+
+              await this.app.use(
+                webpackHotServerMiddleware(compiledConfigs, {
+                  createHandler: webpackHotServerMiddleware.createKoaHandler,
+                  serverRendererOptions: {
+                    passport: passport,
+                    authMiddleware: routeObject.authMiddleware,
+                    middleware: routeObject.middleware
+                  }
+                })
+              );
+            })
+        );
+        await Promise.all(routes);
+        resolve();
+      });
+    } else {
+      return new Promise(async (resolve, reject) => {
+        this.parent.logger.info(
+          "[VelopServer][Compile] Getting files ready, this may take a while...."
+        );
+
+        //Render React Routes
+        let routes = await this.router.ReactRoutes.map(
+          routeObject =>
+            new Promise((resolve, reject) => {
+              const { clientConfig, serverConfig } = routeObject.webpack;
+              const { authMiddleware } = routeObject;
+
+              routeObject.webpack.compileWithCallback((err, stats) => {
+                //host static files and files only
+                stats.toJson().children[0].assets.map(asset => {
+                  const publicPath = path.posix.join(
+                    clientConfig.output.publicPath,
+                    asset.name
+                  );
+
+                  this.app.use(async (ctx, next) => {
+                    if (ctx.path == publicPath) {
+                      await send(ctx, asset.name, {
+                        root: clientConfig.output.path
+                      });
+                    } else {
+                      return next();
+                    }
+                  });
+                });
+
+                //render html if route matches..
+                let clientStats = stats.toJson().children[0];
+                let serverStats = stats.toJson().children[1];
+
+                let serverFile;
+                serverStats.assets.map(file => {
+                  if (path.extname(file.name) == ".js") {
+                    serverFile = file.name;
+                  }
+                });
+
+                let serverRender = require(path.resolve(
+                  serverConfig.output.path,
+                  serverFile
+                ));
+
+                this.app.use(
+                  serverRender({ clientStats, authMiddleware, passport })
+                );
+
+                resolve();
+              });
+            })
+        );
+        await Promise.all(routes);
+        resolve();
+      });
     }
   }
 
@@ -232,11 +244,8 @@ export default class Server {
   }
 
   async stop() {
-    this.parent.logger.info(
-      "[VelopServer] - Stop server",
-      this.parent.config.hostname,
-      this.parent.config.port
-    );
+    this.parent.logger.info("[VelopServer] - Stop server");
+    this.listen.close();
   }
   /**
    * Handle Koa Development middleware after compile is complete

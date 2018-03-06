@@ -1,19 +1,21 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import winston from "winston";
+import _ from "lodash";
 
 import Server from "./classes/Server";
 import Webpack from "./classes/Webpack";
 
 module.exports = class VelopServer {
   constructor(props) {
-    this.config = Object.assign(
+    this.config = _.merge(
       {
         environment: "development",
         hostname: "localhost",
         port: 3000,
 
         options: {
+          logging: true,
           logToFile: false,
           logFile: "server.log",
 
@@ -52,7 +54,10 @@ module.exports = class VelopServer {
       props
     );
 
-    let transports = [new winston.transports.Console()];
+    let transports = [];
+    if (this.config.options.logging)
+      transports.push(new winston.transports.Console());
+
     if (this.config.options.logToFile)
       transports.push(
         new winston.transports.File({ filename: this.config.options.logFile })
@@ -75,10 +80,17 @@ module.exports = class VelopServer {
   }
 
   /**
+   * Starts the engine
+   */
+  stop() {
+    return this.server.stop();
+  }
+
+  /**
    * Adds routes to the route config
    * @param {array} routes [route, route2, routefolder, routefolder3]
    */
-  addRouteFolder(routes) {
+  addRouteFolder(route) {
     this.server.router.addRouteFolder(route);
   }
 

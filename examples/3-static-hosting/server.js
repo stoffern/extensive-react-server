@@ -1,19 +1,26 @@
 const path = require("path");
-const EReactServer = require("../../src");
+const Server = require("../../src");
 
-var server = new EReactServer({
+var server = new Server({
   environment: process.env.NODE_ENV || "development",
   hostname: process.env.HOSTNAME || "localhost",
   port: process.env.PORT || 3000
-}); // create a new instance
+});
 
-let route = server.addStaticFile(path.resolve(process.cwd(), "hello.txt")); //just add a file or a folder
+//just add a file or a folder
+let route = server.addStaticFile(path.resolve(process.cwd(), "hello.txt"));
+
+//serve same file at /hereto.txt
 let route2 = server.addStaticFile(
   path.resolve(process.cwd(), "hello.txt"),
   "/hereto.txt"
-); //serve same file at /hereto.txt
+);
+
+//Serve folder on /public
 let routeFolder = server.addStaticFolder(
   path.resolve(process.cwd(), "static"),
   "/public"
-); //serves folder on /public
-server.start(); //start server
+);
+
+//start server
+server.start();
