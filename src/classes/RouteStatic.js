@@ -84,6 +84,7 @@ export default class RouteStatic {
       } else {
         this.parent.router.api.all(
           path.join(this.servePath, "/", "*"),
+          (ctx, next) => this.authMiddleware(passport, ctx, next),
           this.serveFolder(path.resolve(this.filePath))
         );
       }

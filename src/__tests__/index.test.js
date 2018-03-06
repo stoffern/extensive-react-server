@@ -25,8 +25,9 @@ describe("Server", async () => {
   });
 
   test("Start Koa", async () => {
-    const response = await request(app).get("/");
-    expect(response.status).toEqual(404);
-    expect(response.body).toEqual({});
+    await request(app)
+      .get("/")
+      .expect(404)
+      .expect({});
   });
 });
