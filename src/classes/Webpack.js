@@ -352,16 +352,21 @@ export default class Webpack {
    * [compile description]
    * @return {[type]} [description]
    */
-  async compile() {
-    await this.compileVariables();
-    await this.updateClientConfig({
+  async compile(callback) {
+    this.compileVariables();
+    this.updateClientConfig({
       name: this.clientConfig.name + "-" + uuidv4()
     });
-    await this.updateServerConfig({
+    this.updateServerConfig({
       name: this.serverConfig.name + "-" + uuidv4()
     });
-    let compile = await webpack([this.clientConfig, this.serverConfig]);
-    return compile;
+
+    const configs = webpack([this.clientConfig, this.serverConfig]);
+    configs.compilers[0].plugin("done", () => {
+      callback();
+    });
+
+    return configs;
   }
 
   /**

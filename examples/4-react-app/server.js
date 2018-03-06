@@ -1,10 +1,17 @@
 const path = require("path");
 const Server = require("../../src");
-var server = new Server(); // create a new instance
+var server = new Server({
+  environment: "production"
+}); // create a new instance
 
-const mainRoute = server.addReactRoute(
-  "",
-  path.resolve(process.cwd(), "app/Routes.js")
-);
+async function start() {
+  const mainRoute = server.addReactRoute(
+    "",
+    path.resolve(process.cwd(), "app/Routes.js")
+  );
 
-server.start(); //start server
+  await server.start(); //start server
+  console.log("started");
+}
+
+start();

@@ -8,7 +8,13 @@ describe("Custom routes", async () => {
   let appP;
 
   test("Route file - development", async () => {
-    server = new Server({ port: 3001 });
+    server = new Server({
+      port: 3001,
+      options: {
+        logging: false,
+        logRequests: false
+      }
+    });
     server.addRoute("src/__mocks__/route.js");
     app = await server.start();
     const response = await request(app).get("/test");
@@ -17,7 +23,14 @@ describe("Custom routes", async () => {
     app.close();
   });
   test("Route file - production", async () => {
-    server = new Server({ port: 3002, environement: "production" });
+    server = new Server({
+      port: 3002,
+      environement: "production",
+      options: {
+        logging: false,
+        logRequests: false
+      }
+    });
     server.addRoute("src/__mocks__/route.js");
     app = await server.start();
     const response = await request(app).get("/test");
@@ -27,7 +40,13 @@ describe("Custom routes", async () => {
   });
 
   test("Route folder - development", async () => {
-    server = new Server({ port: 3003 });
+    server = new Server({
+      port: 3003,
+      options: {
+        logging: false,
+        logRequests: false
+      }
+    });
     server.addRouteFolder("src/__mocks__/routes");
     app = await server.start();
     const response = await request(app).get("/test");
@@ -40,7 +59,14 @@ describe("Custom routes", async () => {
   });
 
   test("Route folder - production", async () => {
-    server = new Server({ port: 3004, environement: "production" });
+    server = new Server({
+      port: 3004,
+      environement: "production",
+      options: {
+        logging: false,
+        logRequests: false
+      }
+    });
     server.addRouteFolder("src/__mocks__/routes");
     app = await server.start();
     const response = await request(app).get("/test");

@@ -7,7 +7,13 @@ describe("Static routes", async () => {
   let app;
 
   test("Static file - development", async () => {
-    server = new Server({ port: 3010 });
+    server = new Server({
+      port: 3010,
+      options: {
+        logging: false,
+        logRequests: false
+      }
+    });
     server.addStaticFile("src/__mocks__/hello.txt", "/hello");
     app = await server.start();
     await request(app)
@@ -17,7 +23,14 @@ describe("Static routes", async () => {
     app.close();
   });
   test("Static file - production", async () => {
-    server = new Server({ port: 3011, environment: "production" });
+    server = new Server({
+      port: 3011,
+      environment: "production",
+      options: {
+        logging: false,
+        logRequests: false
+      }
+    });
     server.addStaticFile("src/__mocks__/hello.txt", "/hello");
     app = await server.start();
     await request(app)
@@ -28,7 +41,13 @@ describe("Static routes", async () => {
   });
 
   test("Static folder - development", async () => {
-    server = new Server({ port: 3012 });
+    server = new Server({
+      port: 3012,
+      options: {
+        logging: false,
+        logRequests: false
+      }
+    });
     server.addStaticFolder(
       path.resolve(process.cwd(), "src/__mocks__/static"),
       "/public"
@@ -47,7 +66,14 @@ describe("Static routes", async () => {
     app.close();
   });
   test("Static folder - production", async () => {
-    server = new Server({ port: 3013, environment: "production" });
+    server = new Server({
+      port: 3013,
+      environment: "production",
+      options: {
+        logging: false,
+        logRequests: false
+      }
+    });
     server.addStaticFolder(
       path.resolve(process.cwd(), "src/__mocks__/static"),
       "/public"

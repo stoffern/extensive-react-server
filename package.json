@@ -34,6 +34,8 @@
     "verifyConditions": "condition-circle"
   },
   "jest": {
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": ["/node_modules/", "/build/"],
     "coverageDirectory": "./coverage/",
     "collectCoverage": true
   },

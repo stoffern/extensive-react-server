@@ -2,41 +2,92 @@ import request from "supertest";
 import path from "path";
 import Server from "../index.js";
 
+jest.setTimeout(20000);
+
 describe("React routes", async () => {
   let server;
   let app;
 
   test("React app - development", async () => {
-    server = new Server({ port: 3010 });
-
-    const mainRoute = server.addReactRoute(
+    server = new Server({
+      port: 3020,
+      options: {
+        logging: false,
+        logRequests: false
+      }
+    });
+    const route2 = server.addReactRoute(
       "",
       path.resolve(process.cwd(), "src/__mocks__/react/Routes.js")
     );
+    app = await server.start();
+    await request(app)
+      .get("/foo")
+      .expect(200);
 
+    app.close();
+  });
+  test("React app - production", async () => {
+    server = new Server({
+      port: 3021,
+      environment: "production",
+      options: {
+        logging: false,
+        logRequests: false
+      }
+    });
+    const route2 = server.addReactRoute(
+      "",
+      path.resolve(process.cwd(), "src/__mocks__/react/Routes.js")
+    );
     app = await server.start();
 
     await request(app)
-      .get("/")
-      .expect(200)
-      .expect("hello world");
+      .get("/foo")
+      .expect(200);
 
-    // await request(app).get("/foo")
-    // 	.expect(200)
-    // 	.expect("hello world");
     app.close();
   });
 
-  // test("Multiple React apps - development", async () => {
-  // 	server = new Server({ port: 3012 })
-  // 	server.addStaticFolder(path.resolve(process.cwd(), "src/__mocks__/static"), "/public");
-  // 	app = await server.start()
-  //    await request(app).get("/public/foo.txt")
-  //    	.expect(200)
-  //    	.expect("foo");
-  //    await request(app).get("/public/index.html")
-  //    	.expect(200)
-  //    	.expect("<html>\n  <head>\n    <title>hello</title>\n  </head>\n  <body>\n    <strong>hello</strong> world in HTML\n  </body>\n</html>");
-  // 	app.close()
-  // })
+  test("React app with prefix - development", async () => {
+    server = new Server({
+      port: 3022,
+      environment: "development",
+      options: {
+        logging: false,
+        logRequests: false
+      }
+    });
+    const route2 = server.addReactRoute(
+      "/prefix",
+      path.resolve(process.cwd(), "src/__mocks__/react/Routes.js")
+    );
+    app = await server.start();
+    await request(app)
+      .get("/foo")
+      .expect(200);
+
+    app.close();
+  });
+
+  test("React app with prefix - development", async () => {
+    server = new Server({
+      port: 3023,
+      environment: "production",
+      options: {
+        logging: false,
+        logRequests: false
+      }
+    });
+    const route2 = server.addReactRoute(
+      "/prefix",
+      path.resolve(process.cwd(), "src/__mocks__/react/Routes.js")
+    );
+    app = await server.start();
+    await request(app)
+      .get("/prefix/foo")
+      .expect(200);
+
+    app.close();
+  });
 });

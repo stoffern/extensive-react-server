@@ -8,7 +8,11 @@ describe("Server", async () => {
 
   beforeAll(async () => {
     server = new Server({
-      port: 3000
+      port: 3000,
+      options: {
+        logging: false,
+        logRequests: false
+      }
     });
     app = await server.start();
   });
