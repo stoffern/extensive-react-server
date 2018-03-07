@@ -28,6 +28,9 @@ export default class Server {
   constructor(props, parent) {
     this.parent = parent;
     this.logger = parent.logger;
+    this.packagePath = "";
+    this.setRootPath();
+
     this.app = new Koa();
     this.listen = null;
     this.router = new Router({}, this);
@@ -36,9 +39,6 @@ export default class Server {
     this.isRunning = false;
     this.isDevMode =
       this.parent.config.environment == "development" ? true : false;
-
-    this.packagePath = "";
-    this.setRootPath();
   }
 
   setRootPath() {
@@ -47,13 +47,15 @@ export default class Server {
       let modulesPackage = path.resolve(modulesFolder, "@velop/server/lib");
       let srcFolder = path.join(modulesFolder, "..", "src");
       if (
-        fs.lstatSync(path.resolve(srcFolder, "utils")).isDirectory() &&
+        fs.existsSync(path.resolve(srcFolder)) &&
+        fs.existsSync(path.resolve(srcFolder, "utils")) &&
+        fs.existsSync(path.resolve(srcFolder, "utils", "client-render.js")) &&
         fs
           .lstatSync(path.resolve(srcFolder, "utils", "client-render.js"))
           .isFile()
       ) {
         this.packagePath = srcFolder;
-      } else if (fs.lstatSync(modulesPackage).isDirectory()) {
+      } else if (fs.existsSync(modulesPackage).isDirectory()) {
         this.packagePath = modulesPackage;
       } else {
         this.parent.logger.info(
@@ -65,6 +67,7 @@ export default class Server {
         "[VelopServer][Error] Could not find node_modules or source path...."
       );
     }
+    console.log();
   }
 
   async renderReactApps() {
