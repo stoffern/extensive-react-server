@@ -1,7 +1,7 @@
 const path = require("path");
 const Server = require("../../src");
 var server = new Server({
-  environment: "production"
+  environment: "development"
 }); // create a new instance
 
 async function start() {

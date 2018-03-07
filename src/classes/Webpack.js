@@ -5,6 +5,7 @@ import _ from "lodash";
 import webpack from "webpack";
 import uuidv4 from "uuid/v4";
 import webpackMerge from "webpack-merge";
+import findNodeModules from "find-node-modules";
 
 export default class Webpack {
   constructor(props, parent) {
@@ -12,6 +13,7 @@ export default class Webpack {
     this.compileConfigs = [];
 
     this.variables = {};
+    this.getModulesPath();
 
     this.externals = [];
     let modulesPath = path.resolve(process.cwd(), "node_modules");
@@ -56,7 +58,7 @@ export default class Webpack {
     this.serverConfig = {
       name: "server",
       target: "node",
-      entry: path.join(this.parent.packagePath, "utils/server-render"),
+      entry: path.join(this.modulesPath, "utils/server-render"),
       module: {
         rules: [
           {
@@ -86,13 +88,44 @@ export default class Webpack {
     }
   }
 
+  getModulesPath() {
+    try {
+      let modulesFolder = path.resolve(findNodeModules()[0]);
+      let modulesPackage = path.resolve(modulesFolder, "@velop/server/lib");
+      let srcFolder = path.join(modulesFolder, "..", "src");
+      if (
+        fs.existsSync(path.resolve(srcFolder)) &&
+        fs.existsSync(path.resolve(srcFolder, "utils")) &&
+        fs.existsSync(path.resolve(srcFolder, "utils", "client-render.js")) &&
+        fs
+          .lstatSync(path.resolve(srcFolder, "utils", "client-render.js"))
+          .isFile()
+      ) {
+        this.modulesPath = srcFolder;
+      } else if (fs.lstatSync(modulesPackage).isDirectory()) {
+        this.modulesPath = modulesPackage;
+      } else {
+        this.parent.logger.info(
+          "[VelopServer][Error] Could not find node_modules or source path...."
+        );
+        return "";
+      }
+    } catch (e) {
+      this.parent.logger.info("[VelopServer][Error] " + e);
+      this.parent.logger.info(
+        "[VelopServer][Error] Could not find node_modules or source path...."
+      );
+      return "";
+    }
+  }
+
   setClientConfigDev() {
     this.clientConfig = webpackMerge(true, this.clientConfig, {
       mode: "development",
       entry: [
         "webpack-hot-middleware/client?path=/__webpack_hmr&timeout=20000&reload=false&quiet=false&noInfo=false",
         "react-hot-loader/patch",
-        path.join(this.parent.packagePath, "utils/client-render")
+        path.join(this.modulesPath, "utils/client-render")
       ],
       output: {
         filename: "[name].js",
@@ -110,7 +143,7 @@ export default class Webpack {
   setClientConfigProd() {
     this.clientConfig = webpackMerge(true, this.clientConfig, {
       mode: "production",
-      entry: path.join(this.parent.packagePath, "utils/client-render"),
+      entry: path.join(this.modulesPath, "utils/client-render"),
       output: {
         filename: "[name].[chunkhash].js",
         chunkFilename: "[name].[chunkhash].js",
