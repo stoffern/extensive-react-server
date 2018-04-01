@@ -5,13 +5,13 @@
   "main": "server.js",
   "scripts": {
     "relay": "relay-compiler --src ./app --schema ./schema/schema.graphql",
-    "generate-graphql": "generate-graphql ./schema/index.js ./schema/schema.graphql",
+    "generate-graphql":
+      "generate-graphql ./schema/index.js ./schema/schema.graphql",
     "start": "node server.js"
   },
   "author": "",
   "license": "MIT",
-  "devDependencies": {
-    "generate-graphql": "^1.0.1",
-    "relay-compiler": "^1.4.1"
+  "dependencies": {
+    "@velop/server": "^0.2.9"
   }
 }

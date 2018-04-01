@@ -1,15 +1,13 @@
 const path = require("path");
-const EReactServer = require("../../src");
+// const Server = require("@velop/server");
+const Server = require("@velop/server");
 
-var server = new EReactServer(); // create a new instance
-
-server.addRoute("routes"); //add routes folder containing graphql
-
+var server = new Server();
+server.addRoute("routes");
 const route = server.addReactRoute(
-  "", //Route prefix
-  path.resolve(process.cwd(), "app/Routes.js") //Path to react app, must return a found router..
+  "",
+  path.resolve(process.cwd(), "app/Routes.js")
 );
-
 route.setGraphqlEnpoint("http://localhost:3000/graphql");
 
-server.start(); //start server
+server.start();

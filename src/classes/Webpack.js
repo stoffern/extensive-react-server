@@ -28,6 +28,12 @@ export default class Webpack {
           return externals;
         }, {});
 
+    this.excludeDirs = path.resolve(findNodeModules()[0]);
+    this.includeDirs = path.resolve(__dirname, "..");
+
+    console.log(this.excludeDirs);
+    console.log(this.includeDirs);
+
     this.clientConfig = {
       name: "client",
       target: "web",
@@ -39,7 +45,9 @@ export default class Webpack {
               loader: "babel-loader",
               options: {
                 babelrc: true,
-                comments: true
+                comments: true,
+                presets: ["env", "react"],
+                plugins: ["relay", "transform-runtime"]
               }
             },
             exclude: /node_modules/
@@ -54,7 +62,6 @@ export default class Webpack {
         extensions: [".js"]
       }
     };
-
     this.serverConfig = {
       name: "server",
       target: "node",
@@ -67,10 +74,13 @@ export default class Webpack {
               loader: "babel-loader",
               options: {
                 babelrc: true,
-                comments: true
+                comments: true,
+                presets: ["env", "react"],
+                plugins: ["relay", "transform-runtime"]
               }
             },
-            exclude: /node_modules/
+            exclude: this.excludeDirs,
+            include: this.includeDirs
           }
         ]
       },
@@ -160,7 +170,7 @@ export default class Webpack {
       mode: "development",
       externals,
       output: {
-        path: path.resolve(__dirname, "build/ssr"),
+        path: path.resolve(process.cwd(), "build/ssr"),
         filename: "[name].js",
         libraryTarget: "commonjs2"
       }
