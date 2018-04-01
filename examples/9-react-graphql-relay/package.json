@@ -12,6 +12,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@velop/server": "^0.2.9"
+    "@velop/server": "^0.2.10"
   }
 }

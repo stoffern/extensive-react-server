@@ -29,10 +29,6 @@ export default class Webpack {
         }, {});
 
     this.excludeDirs = path.resolve(findNodeModules()[0]);
-    this.includeDirs = path.resolve(__dirname, "..");
-
-    console.log(this.excludeDirs);
-    console.log(this.includeDirs);
 
     this.clientConfig = {
       name: "client",
@@ -79,8 +75,7 @@ export default class Webpack {
                 plugins: ["relay", "transform-runtime"]
               }
             },
-            exclude: this.excludeDirs,
-            include: this.includeDirs
+            exclude: this.excludeDirs
           }
         ]
       },
