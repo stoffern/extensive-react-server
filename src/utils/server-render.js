@@ -1,3 +1,4 @@
+import path from "path";
 import ReactDOM from "react-dom/server";
 import { flushChunkNames } from "react-universal-component/server";
 import flushChunks from "webpack-flush-chunks";
@@ -9,7 +10,7 @@ import { Helmet } from "react-helmet";
 import { ServerFetcher } from "./fetcher";
 import { createResolver, historyMiddlewares, render } from "./Router";
 
-const renderHtml = ({ element, clientStats, relayPayload }) => {
+const renderHtml = ({ element, clientStats, relayPayload, staticFiles }) => {
   const app = ReactDOM.renderToString(element);
 
   const { js } = flushChunks(clientStats, {
@@ -19,6 +20,22 @@ const renderHtml = ({ element, clientStats, relayPayload }) => {
   const helmet = Helmet.renderStatic();
   let title = helmet && helmet.title && helmet.title.toString();
   let meta = helmet && helmet.meta && helmet.meta.toString();
+
+  let prefix;
+  if (process.env.REACT_ROUTE_PREFIX.length > 0)
+    prefix = process.env.REACT_ROUTE_PREFIX;
+  else prefix = "";
+
+  let cssInfo = "";
+  if (staticFiles !== undefined && staticFiles.length > 0) {
+    let cssInfo = staticFiles
+      .filter(file => path.extname(file) == ".css")
+      .map(
+        file =>
+          '<link rel="stylesheet" href="' + path.join(prefix, file) + '" />'
+      );
+    cssInfo.reduce((a, b) => a + b);
+  }
 
   return `
     <!DOCTYPE html>
@@ -30,6 +47,7 @@ const renderHtml = ({ element, clientStats, relayPayload }) => {
         ${helmet.title.toString()}
         ${helmet.meta.toString()}
         ${helmet.link.toString()}
+        ${cssInfo}
         <script>window.__RELAY_PAYLOADS__ = ${relayPayload};</script>
       </head>
 
@@ -41,10 +59,12 @@ const renderHtml = ({ element, clientStats, relayPayload }) => {
     </html>`;
 };
 
-module.exports = ({ clientStats, authMiddleware, passport }) => async (
-  ctx,
-  next
-) => {
+module.exports = ({
+  clientStats,
+  authMiddleware,
+  passport,
+  staticFiles
+}) => async (ctx, next) => {
   try {
     //Set prefix
     if (
@@ -85,8 +105,14 @@ module.exports = ({ clientStats, authMiddleware, passport }) => async (
 
   // Use custom render function if passed
   if (typeof RENDER_HTML_FUNCTION !== "undefined")
-    ctx.body = RENDER_HTML_FUNCTION({ element, clientStats, relayPayload });
-  else ctx.body = renderHtml({ element, clientStats, relayPayload });
+    ctx.body = RENDER_HTML_FUNCTION({
+      element,
+      clientStats,
+      relayPayload,
+      staticFiles
+    });
+  else
+    ctx.body = renderHtml({ element, clientStats, relayPayload, staticFiles });
 
   next();
 };

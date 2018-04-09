@@ -120,20 +120,32 @@ export default class Server {
                 let clientStats = stats.toJson().children[0];
                 let serverStats = stats.toJson().children[1];
 
+                let serverRender;
                 let serverFile;
+                let staticFiles = [];
                 serverStats.assets.map(file => {
                   if (path.extname(file.name) == ".js") {
-                    serverFile = file.name;
+                    serverRender = require(path.resolve(
+                      serverConfig.output.path,
+                      file.name
+                    ));
+                  } else {
+                    let staticFilePath = path.resolve(
+                      serverConfig.output.path,
+                      file.name
+                    );
+                    this.router.addStaticFile(staticFilePath);
+                    staticFiles.push(file.name);
                   }
                 });
 
-                let serverRender = require(path.resolve(
-                  serverConfig.output.path,
-                  serverFile
-                ));
-
                 this.app.use(
-                  serverRender({ clientStats, authMiddleware, passport })
+                  serverRender({
+                    clientStats,
+                    authMiddleware,
+                    passport,
+                    staticFiles
+                  })
                 );
 
                 resolve();

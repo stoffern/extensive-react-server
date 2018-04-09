@@ -6,6 +6,7 @@ import webpack from "webpack";
 import uuidv4 from "uuid/v4";
 import webpackMerge from "webpack-merge";
 import findNodeModules from "find-node-modules";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
 
 export default class Webpack {
   constructor(props, parent) {
@@ -138,6 +139,24 @@ export default class Webpack {
         path: path.resolve(process.cwd(), "build/client"),
         publicPath: "/static/"
       },
+      module: {
+        rules: [
+          {
+            test: /\.scss$/,
+            use: [
+              {
+                loader: "style-loader"
+              },
+              {
+                loader: "css-loader"
+              },
+              {
+                loader: "sass-loader"
+              }
+            ]
+          }
+        ]
+      },
       plugins: [
         new webpack.HotModuleReplacementPlugin(),
         new webpack.NoEmitOnErrorsPlugin()
@@ -155,7 +174,32 @@ export default class Webpack {
         path: path.resolve(process.cwd(), "build/client"),
         publicPath: "/static/"
       },
-      plugins: [new webpack.HashedModuleIdsPlugin()]
+      module: {
+        rules: [
+          {
+            test: /\.scss$/,
+            use: [
+              MiniCssExtractPlugin.loader,
+              {
+                loader: "style-loader"
+              },
+              {
+                loader: "css-loader"
+              },
+              {
+                loader: "sass-loader"
+              }
+            ]
+          }
+        ]
+      },
+      plugins: [
+        new webpack.HashedModuleIdsPlugin(),
+        new MiniCssExtractPlugin({
+          filename: "[name].css",
+          chunkFilename: "[id].css"
+        })
+      ]
     });
   }
 
@@ -168,6 +212,21 @@ export default class Webpack {
         path: path.resolve(process.cwd(), "build/ssr"),
         filename: "[name].js",
         libraryTarget: "commonjs2"
+      },
+      module: {
+        rules: [
+          {
+            test: /\.scss$/,
+            use: [
+              {
+                loader: "css-loader"
+              },
+              {
+                loader: "sass-loader"
+              }
+            ]
+          }
+        ]
       }
     });
   }
@@ -180,7 +239,29 @@ export default class Webpack {
         filename: "[name].[chunkhash].js",
         chunkFilename: "[name].[chunkhash].js",
         libraryTarget: "commonjs2"
-      }
+      },
+      module: {
+        rules: [
+          {
+            test: /\.scss$/,
+            use: [
+              MiniCssExtractPlugin.loader,
+              {
+                loader: "css-loader"
+              },
+              {
+                loader: "sass-loader"
+              }
+            ]
+          }
+        ]
+      },
+      plugins: [
+        new MiniCssExtractPlugin({
+          filename: "[name].css",
+          chunkFilename: "[id].css"
+        })
+      ]
     });
   }
 
