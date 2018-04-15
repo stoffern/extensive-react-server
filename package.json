@@ -126,7 +126,7 @@
     "react-universal-component": "^2.8.4",
     "relay-compiler": "1.4.0",
     "relay-runtime": "1.4.0",
-    "sass-loader": "^6.0.7",
+    "sass-loader": "^7.0.0",
     "serialize-javascript": "^1.4.0",
     "shx": "^0.2.2",
     "style-loader": "^0.20.3",
