@@ -57,7 +57,7 @@
     "babel-eslint": "^8.2.2",
     "babel-loader": "^7.1.4",
     "babel-plugin-react-intl": "^2.4.0",
-    "babel-plugin-relay": "1.4.0",
+    "babel-plugin-relay": "1.6.0",
     "babel-plugin-styled-components": "^1.5.1",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-plugin-universal-import": "^1.4.0",
