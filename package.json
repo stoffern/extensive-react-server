@@ -73,7 +73,7 @@
     "ddos": "^0.1.28",
     "dotenv": "^5.0.1",
     "eslint": "4.19.1",
-    "eslint-config-airbnb": "^16.1.0",
+    "eslint-config-airbnb": "^17.1.0",
     "eslint-loader": "^2.0.0",
     "eslint-plugin-import": "^2.10.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
