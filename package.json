@@ -83,7 +83,7 @@
     "find-node-modules": "^1.0.4",
     "found": "^0.3.8",
     "found-relay": "^0.3.0-alpha.11",
-    "fs-extra": "^5.0.0",
+    "fs-extra": "^7.0.1",
     "graphql": "^0.13.2",
     "graphql-errors": "^2.1.0",
     "graphql-relay": "^0.5.5",
