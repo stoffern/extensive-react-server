@@ -29,7 +29,7 @@
     "mini-css-extract-plugin": "^0.4.0",
     "prettier": "1.11.1",
     "semantic-release": "^15.1.5",
-    "supertest": "^3.0.0"
+    "supertest": "^3.4.1"
   },
   "release": {
     "verifyConditions": "condition-circle"
